@@ -62,3 +62,11 @@ Exposed API (not RESTful but close enough  ¯\\\_(ツ)\_/¯):
 * Download `GET /api/download`
 	* Payload: session key, file type (plain text/PDF with overlay/image archive).
 	* Returns: OCR'd file of the requested type.
+
+## Iverieli examples
+Good: 
+![](https://github.com/lshug/ilia_ocr/blob/main/resources/good1.png)
+![](https://github.com/lshug/ilia_ocr/blob/main/resources/good2.png)
+![](https://github.com/lshug/ilia_ocr/blob/main/resources/good3.png)
+Bad:
+![](https://github.com/lshug/ilia_ocr/blob/main/resources/bad.png)
