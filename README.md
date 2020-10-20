@@ -65,8 +65,12 @@ Exposed API (not RESTful but close enough  ¯\\\_(ツ)\_/¯):
 
 ## Iverieli examples
 Good: 
-![](https://github.com/lshug/ilia_ocr/blob/main/resources/good1.png)
-![](https://github.com/lshug/ilia_ocr/blob/main/resources/good2.png)
-![](https://github.com/lshug/ilia_ocr/blob/main/resources/good3.png)
+
+![](https://github.com/lshug/ilia_ocr/blob/main/resources/good1.png =200x)
+![](https://github.com/lshug/ilia_ocr/blob/main/resources/good2.png =200x)
+![](https://github.com/lshug/ilia_ocr/blob/main/resources/good3.png =200x)
+
+
 Bad:
-![](https://github.com/lshug/ilia_ocr/blob/main/resources/bad.png)
+
+![](https://github.com/lshug/ilia_ocr/blob/main/resources/bad.png =200x)
