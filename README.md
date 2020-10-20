@@ -71,4 +71,5 @@ Good:
 <img src="resources/good3.png" width="200">
 
 Bad:
+
 <img src="resources/bad.png" width="200">
