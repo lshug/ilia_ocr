@@ -66,9 +66,9 @@ Exposed API (not RESTful but close enough  ¯\\\_(ツ)\_/¯):
 ## Iverieli examples
 Good: 
 
-<img src="resources/good1.png" width="200">
-<img src="resources/good2.png" width="200">
-<img src="resources/good3.png" width="200">
+<img src="resources/good1.png" width="50">
+<img src="resources/good2.png" width="50">
+<img src="resources/good3.png" width="50">
 
 Bad:
 
