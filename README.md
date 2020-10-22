@@ -11,7 +11,7 @@ Repository for the OCR team. Should contain (completed items in bold):
  * Script for wrapping up the Flask server in a docker container 
 	 * Script for deploying the container to the server
 
-## Informal Flask server description
+## Informal FastAPI server description
 Global namespace components:
 * *upload\_service*: image conversion, preprocessing, and chararcter box detection service, queue.
 * *extraction\_service*: service, queue for for extracting character boxes from the image files.
