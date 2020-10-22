@@ -31,8 +31,18 @@ for h in tqdm(handles):
         pass
 
 files = ['http://dspace.nplg.gov.ge'+f for f in files]
-open('file_urls.txt','w',encoding='utf8').writelines([f+'\n' for f in files])
 
+
+nongeo_strings = list('АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя') + ['Nedelia','Vedomosti','Listok','Figaro','Xleb','Bzyb','Borba','Vechernii','Volni','Golos','Rabochii','Gruzia','Zabava','Zakavkaz','Kavkaz','Kavkaski','kavkaz','Novoe','Novii','Pravda','Apsny','Messenger','Times','41_Grad','Journal','Kaukasische','Georgiana','Georgie','Observer']
+def georgian(s):
+    return all([n not in s for n in nongeo_strings])
+
+files = list(filter(georgian, files))
+open('file_urls.txt','w',encoding='utf8').writelines([f+'\n' for f in files])
 random.shuffle(files)
+open('file_urls_shuffled.txt','w',encoding='utf8').writelines([f+'\n' for f in files])
+open('file_urls_shuffled_10k.txt','w',encoding='utf8').writelines([f+'\n' for f in files[:10000]])
+
+
 for f in tqdm(files[0:10000]):
     urllib.request.urlretrieve(f, f.split('/')[-1])
