@@ -51,17 +51,9 @@ Exposed API (not RESTful but close enough  ¯\\\_(ツ)\_/¯):
 	* Gets the session's index/progress in the inference queue.
 	* Payload: session key
 	* Returns: queue index/progress percentage on ocr.
-* Start overlay `GET /api/overlay`
-	* Places the extracted boxes in *overlay\_service*.
-	* Payload: session key.
-	* Returns: confirmation on the start of inference.
-* Get overlay progress `GET /api/overlay_progress`
- 	* Gets the session's index/progress in the overlay queue.
+* Download `GET /api/output`
 	* Payload: session key
-	* Returns: queue index/progress percentage on overlay.
-* Download `GET /api/download`
-	* Payload: session key, file type (plain text/PDF with overlay/image archive).
-	* Returns: OCR'd file of the requested type.
+	* Returns: OCR results in plain text
 
 ## Iverieli examples
 Good: 
