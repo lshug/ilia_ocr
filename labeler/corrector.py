@@ -6,11 +6,11 @@ from PIL import ImageTk, Image
 
 
 root = tk.Tk()
-root.title("ilia_ocr labeler")
+root.title("ilia_ocr label corrector")
 root.geometry('400x400+600+600')
 
 root.withdraw()
-char_directory = tk.filedialog.askdirectory(title='Character directory', parent=root)
+char_directory = tk.filedialog.askdirectory(title='Label root directory', parent=root)
 os.chdir(char_directory)
 files = [char_directory+'/'+x for x in os.listdir() if 'png' in x]
 files.sort()
@@ -35,7 +35,8 @@ def right():
 
 
 def bad():
-    label_dir[files[current_image]]='bad'
+    label_dir.pop(files[current_image])
+    os.remove(files[current_image])
     right()
 
 def update():
@@ -49,9 +50,6 @@ def update():
 def key(event):
     if event.keysym=='space':
         bad()
-    elif len(event.char)==1:
-        char_entry(event.char)
-        current_text.set('')
     elif event.keysym=='Left':
         current_text.set('')
         left()
@@ -61,8 +59,6 @@ def key(event):
 
 try:
     label_dir = json.loads((open('labels.txt','r',encoding='utf8').read()))
-    for k in label_dir.keys():
-        files.remove(k)
 except Exception as e:
     label_dir = {}
     open("labels.txt","w+",encoding='utf8')
@@ -74,7 +70,7 @@ imgpanel.pack(side="top", fill="both", expand="yes")
 
 current_text = tk.StringVar()
 current_text.set(label_dir.get(files[current_image],''))
-entry = tk.Entry(root, textvariable=current_text)
+entry = tk.Label(root, textvariable=current_text, font=("Courier", 44))
 entry.bind('<Key>', key)
 entry.focus_force()
 entry.pack(side='bottom', fill='both', expand='yes')
