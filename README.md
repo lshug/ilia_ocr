@@ -16,7 +16,7 @@ Repository for the OCR team. Should contain (completed items in bold):
         * Symbol heuristics
             * Erosion and resegmentation on wide symbols
             * Insert Tesseract-detected punctuations
-            * Ignore symbols with very small non-punctuation symbols
+            * Ignore non-punctuation symbols with very small boxes
         * Document to image:json pairs pipeline
     * Model serving
     * FastAPI microservice
