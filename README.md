@@ -16,7 +16,6 @@ Global namespace components:
 * *upload\_service*: image conversion, preprocessing, and chararcter box detection service, queue.
 * *extraction\_service*: service, queue for for extracting character boxes from the image files.
 * *ocr\_service*: Inference service, queue.
-* *overlay\_service*:  service and queue for overlaying OCR'd character back onto the images/PDF.
 
 Exposed API (not RESTful but close enough  ¯\\\_(ツ)\_/¯):
 * Upload `POST /api/upload`
