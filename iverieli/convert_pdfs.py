@@ -16,7 +16,7 @@ except:
 files = [x for x in os.listdir('.') if '.pdf' in x]
 random.shuffle(files)
 
-if extract_no := os.genenv('EXTRACT_NO',None) is not None:
+if extract_no := os.getenv('EXTRACT_NO',None) is not None:
     files = files[:extract_no]
     
 error = 0
