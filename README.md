@@ -53,7 +53,9 @@ Exposed API (not RESTful but close enough  ¯\\\_(ツ)\_/¯):
 * Download `GET /api/output`
 	* Payload: session key
 	* Returns: OCR results in plain text
+Response examples can be found in responses_example.txt.
 
+	
 ## Iverieli examples
 Good: 
 

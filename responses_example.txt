@@ -1,0 +1,100 @@
+POST /api/upload
+payload: 
+(some_file.pdf)
+response:
+"9hj4nnbp"
+
+GET /api/conversion_progress
+payload:
+"9hj4nnbp"
+response:
+[0.57, "Conversion progress: 57%"]
+
+GET /api/boxes_page
+payload:
+["9hj4nnbp",3]
+response:
+{
+   "blocks":[
+      {
+         "box":[0,0,0,0],
+         "parahraphs":[
+            {
+               "box":[0,0,0,0],
+               "lines":[
+                  {
+                     "box":[0,0,0,0],
+                     "words":[
+                        {
+                           "box":[0,0,0,0],
+                           "symbols":[[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+                        }
+                     ]
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}
+
+POST /api/submit_edits
+payload:
+["9hj4nnbp",3,{
+   "blocks":[
+      {
+         "box":[0,0,0,0],
+         "parahraphs":[
+            {
+               "box":[0,0,0,0],
+               "lines":[
+                  {
+                     "box":[0,0,0,0],
+                     "words":[
+                        {
+                           "box":[0,0,0,0],
+                           "symbols":[[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+                        }
+                     ]
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}]
+response:
+"Edit submitted"
+
+GET /api/extract
+payload:
+"9hj4nnbp"
+response:
+"Extraction started"
+
+GET /api/extraction_progress
+payload:
+"9hj4nnbp"
+response:
+[0.24, "Extraction progress: 24%"]
+
+GET /api/ocr
+payload:
+"9hj4nnbp"
+response:
+"Inference started"
+
+GET /api/ocr_progress
+payload:
+"9hj4nnbp"
+response:
+[0.93, "Inference progress: 93%"]
+
+
+GET /api/output
+payload:
+"9hj4nnbp"
+response:
+"ეს ტექსტი იყო დოკუმენტში პირველ გვერდზე.
+ეს მეორეზე.
+123"
