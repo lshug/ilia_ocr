@@ -48,7 +48,7 @@ for f in tqdm(files):
                 chars = extract_chars(img)
                 for i,im in tqdm(enumerate(chars)):
                     im.save(f'chars/{i}.png','PNG')
-                os.remove('p')
+                os.remove(p)
             os.chdir('../..')
     except Exception as ex:
         error+=1
