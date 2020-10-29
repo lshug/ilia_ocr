@@ -16,7 +16,8 @@ Repository for the OCR team. Should contain (completed items in bold):
 		 * Symbol
 	* Document to image:json pairs pipeline
  * Semi-supervised pipeline for labeling Iverieli chars
-	 * Tkiner-based GUI labeler and corrector
+	 * **Tkiner-based GUI labeler**
+	 * Tkinter-based GUI corrector
 	 * FixMatch pipeline
  * Model TL/training code
  * Code for the FastAPI server serving the model
