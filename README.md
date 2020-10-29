@@ -13,13 +13,10 @@ Repository for the OCR team. Should contain (completed items in bold):
 	 * Model training and tf.saved_model/keras model generation code
  * Server
     * Dataloader code (both for the chars from Iverieli and from the provided dataset)
-        * Preprocessors
-            * Page
-            * Box
-            * Paragraph
-            * Line
-            * Word
-            * Symbol
+        * Symbol heuristics
+            * Erosion and resegmentation on wide symbols
+            * Insert Tesseract-detected punctuations
+            * Ignore symbols with very small non-punctuation symbols
         * Document to image:json pairs pipeline
     * Model serving
     * FastAPI microservice
