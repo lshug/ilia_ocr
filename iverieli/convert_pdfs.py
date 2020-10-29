@@ -18,7 +18,7 @@ random.shuffle(files)
 
 if (extract_no := os.getenv('EXTRACT_NO',None)) is not None:
     print(f'Extracting {extract_no} files')
-    files = files[:extract_no]
+    files = files[:int(extract_no)]
     
     
 error = 0
