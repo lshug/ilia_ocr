@@ -2,7 +2,7 @@
 
 # ilia_ocr
 Repository for the OCR team. Should contain (completed items in bold):
- * Iverieli scraping and segmenting code
+ * **Iverieli scraping and segmenting code**
  	 * **Iverieli downloader**
  	 * **Iverieli segmenter**
 	 * **Text extractor for PDFs with text layers**

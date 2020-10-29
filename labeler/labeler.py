@@ -12,7 +12,7 @@ root.geometry('400x400+600+600')
 root.withdraw()
 char_directory = tk.filedialog.askdirectory(title='Character directory', parent=root)
 os.chdir(char_directory)
-files = [char_directory+'/'+x for x in os.listdir() if 'png' in x]
+files = [x for x in os.listdir() if 'png' in x]
 files.sort()
 
 root.deiconify()
@@ -39,7 +39,7 @@ def bad():
     right()
 
 def update():
-    img = ImageTk.PhotoImage(Image.open(files[current_image]).resize((400,300)))
+    img = ImageTk.PhotoImage(Image.open(char_directory+'/'+files[current_image]).resize((400,300)))
     imgpanel.configure(image=img)
     imgpanel.image = img
     current_text.set(label_dir.get(files[current_image],''))
@@ -68,7 +68,7 @@ except Exception as e:
     open("labels.txt","w+",encoding='utf8')
 
 current_image = 0
-img = ImageTk.PhotoImage(Image.open(files[current_image]).resize((400,300)))
+img = ImageTk.PhotoImage(Image.open(char_directory+'/'+files[current_image]).resize((400,300)))
 imgpanel = tk.Label(root, image=img)
 imgpanel.pack(side="top", fill="both", expand="yes")
 
