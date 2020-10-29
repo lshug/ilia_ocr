@@ -5,7 +5,7 @@ Repository for the OCR team. Should contain (completed items in bold):
  * Iverieli scraping and segmenting code
  	 * **Iverieli downloader**
  	 * **Iverieli segmenter**
-	 * Text extractor for PDFs with text layers
+	 * **Text extractor for PDFs with text layers**
  * Dataloader code (both for the chars from Iverieli and from the provided dataset)
 	 * Preprocessors
 		 * Page
