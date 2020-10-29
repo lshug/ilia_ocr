@@ -1,13 +1,25 @@
 
+
 # ilia_ocr
 Repository for the OCR team. Should contain (completed items in bold):
- * **Iverieli scraping and segmenting code**
+ * Iverieli scraping and segmenting code
+ 	 * **Iverieli downloader**
+ 	 * **Iverieli segmenter**
+	 * Text extractor for PDFs with text layers
  * Dataloader code (both for the chars from Iverieli and from the provided dataset)
+	 * Preprocessors
+		 * Page
+		 * Box
+		 * Paragraph
+		 * Line
+		 * Word
+		 * Symbol
+	* Document to image:json pairs pipeline
  * Semi-supervised pipeline for labeling Iverieli chars
-	 * Tkiner-based GUI labeler
-	 * Classifier
+	 * Tkiner-based GUI labeler and corrector
+	 * FixMatch pipeline
  * Model TL/training code
- * Code for the Flask server serving the model
+ * Code for the FastAPI server serving the model
  * Script for wrapping up the Flask server in a docker container 
 	 * Script for deploying the container to the server
 
@@ -53,7 +65,7 @@ Exposed API (not RESTful but close enough  ¯\\\_(ツ)\_/¯):
 * Download `GET /api/output`
 	* Payload: session key
 	* Returns: OCR results in plain text
-Response examples can be found in responses_example.txt.
+Response examples can be found in [responses_example.txt](responses_example.txt).
 
 	
 ## Iverieli examples
