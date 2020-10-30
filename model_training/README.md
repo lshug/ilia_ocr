@@ -15,7 +15,7 @@ Example: `python3 train.py "/home/user/labeled_chars/"`
 All samples are divided by 255.0.
 
 #### Model, hyperparameters and schedule
- * InceptionResNetV2 with `(28,28) float32` input and 44 class output.
+ * InceptionResNetV2 with `(32,32) float32` input and 44 class output.
  * 0.8 train-test split
  * Categorical cross-entropy loss
  * Adam with `lr=0.0001`
