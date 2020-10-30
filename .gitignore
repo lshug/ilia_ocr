@@ -1,5 +1,7 @@
 *.kate-swp
 *.pdf
+*.hdf5
+*.h5
 iverieli/dataset/
 iverieli/__pychache__/
 iverieli/iverieli_text_corpus.txt
