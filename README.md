@@ -11,7 +11,7 @@ Repository for the OCR team. Should contain (completed items in bold):
 	 * **Tkinter-based GUI corrector**
 	 * **Model training and keras model generation code**
  * Server
-    * Dataloader code (both for the chars from Iverieli and from the provided dataset)
+    * Dataloader code
         * Symbol heuristics
             * Erosion and resegmentation on wide symbols
             * Insert Tesseract-detected punctuations
