@@ -6,10 +6,9 @@ Repository for the OCR team. Should contain (completed items in bold):
  	 * **Iverieli downloader**
  	 * **Iverieli segmenter**
 	 * **Text extractor for PDFs with text layers**
- * Semi-supervised pipeline for labeling Iverieli chars
+ * **Semi-supervised pipeline for labeling Iverieli chars**
 	 * **Tkiner-based GUI labeler**
 	 * **Tkinter-based GUI corrector**
-	 * FixMatch pipeline
 	 * **Model training and keras model generation code**
  * Server
     * Dataloader code (both for the chars from Iverieli and from the provided dataset)

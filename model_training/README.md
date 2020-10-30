@@ -6,7 +6,7 @@ Code here should load a labelled char folder, load the chars and labels into num
 Example: `python3 train.py "/home/user/labeled_chars/"`
 
 #### Input:
-```(32,32), float32```
+```(32,32,1), float32```
 
 ####  Classes:
 `` ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', 'ა', 'ბ', 'გ', 'დ', 'ე', 'ვ', 'ზ', 'თ', 'ი', 'კ', 'ლ', 'მ', 'ნ', 'ო', 'პ', 'ჟ', 'რ', 'ს', 'ტ', 'უ', 'ფ', 'ქ', 'ღ', 'ყ', 'შ', 'ჩ', 'ც', 'ძ', 'წ', 'ჭ', 'ხ', 'ჯ', 'ჰ'] ``
@@ -15,7 +15,7 @@ Example: `python3 train.py "/home/user/labeled_chars/"`
 All samples are divided by 255.0.
 
 #### Model, hyperparameters and schedule
- * InceptionResNetV2 with `(32,32) float32` input and 44 class output.
+ * ResNet152V2 with `(32,32,1) float32` input and 44 class output.
  * 0.8 train-test split
  * Categorical cross-entropy loss
  * Adam with `lr=0.0001`
