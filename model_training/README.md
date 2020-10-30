@@ -6,7 +6,7 @@ Code here should load a labelled char folder, load the chars and labels into num
 Example: `python3 train.py "/home/user/labeled_chars/"`
 
 #### Input:
-```(28,28), float32```
+```(32,32), float32```
 
 ####  Classes:
 `` ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', 'ა', 'ბ', 'გ', 'დ', 'ე', 'ვ', 'ზ', 'თ', 'ი', 'კ', 'ლ', 'მ', 'ნ', 'ო', 'პ', 'ჟ', 'რ', 'ს', 'ტ', 'უ', 'ფ', 'ქ', 'ღ', 'ყ', 'შ', 'ჩ', 'ც', 'ძ', 'წ', 'ჭ', 'ხ', 'ჯ', 'ჰ'] ``
