@@ -11,3 +11,7 @@ Any other key: give the entry its label
 Left and right keys: change current entry
 
 Space: delete bad entry
+
+# combine_labels
+
+Put in a root directory, where each subdirectory is a label folder, and run. This will create directory `combined' with all images and a single label file.
