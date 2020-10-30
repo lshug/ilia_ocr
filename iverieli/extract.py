@@ -3,16 +3,16 @@ from tesserocr import PyTessBaseAPI, RIL
 import numpy as np
 import cv2
 
-api = PyTessBaseAPI()
+api = PyTessBaseAPI(psm=1)
 api.Init()
 
-def extract_segments(img, psm=1):
+def extract_segments(img, ril=RIL.SYMBOL):
     cv_img = np.array(img.convert('RGB'))[:,:,::-1].copy()
     boxes = []
-    api.SetImage(p)
+    api.SetImage(img)
     img_iter = api.AnalyseLayout()
-    while img_iter.Next(psm):
-        boxes.append(img_iter.BoundingBox(psm))
+    while img_iter.Next(ril):
+        boxes.append(img_iter.BoundingBox(ril))
     return [Image.fromarray(cv_img[y:y+h, x:x+w]) for x,y,w,h in boxes]
 
 def extract_chars(img, psm=1):
