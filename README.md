@@ -10,7 +10,7 @@ Repository for the OCR team. Should contain (completed items in bold):
 	 * **Tkiner-based GUI labeler**
 	 * **Tkinter-based GUI corrector**
 	 * FixMatch pipeline
-	 * Model training and tf.saved_model/keras model generation code
+	 * **Model training and keras model generation code**
  * Server
     * Dataloader code (both for the chars from Iverieli and from the provided dataset)
         * Symbol heuristics
