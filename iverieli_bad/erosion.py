@@ -1,7 +1,8 @@
 from PIL import Image, ImageFilter
 import numpy as np
-from tesserocr import PyTessBaseAPI, RIL
+from tesserocr import PyTessBaseAPI, RIL, PSM
 from matplotlib import pyplot as plt
+import cv2
 
 
 
@@ -29,20 +30,52 @@ def dilate(im, size=3):
         return im
     
     
-api = PyTessBaseAPI(psm=1, path = r'C:\Program Files\Tesseract-OCR\tessdata')
+api = PyTessBaseAPI(psm=PSM.SINGLE_WORD, path = r'C:\Program Files\Tesseract-OCR\tessdata')
 api.Init(path = r'C:\Program Files\Tesseract-OCR\tessdata')
 
 
 def resegment(img): #img needs to be a PIL image
+   
     plt.imshow(img)
-    plt.show()    
-    boxes = []
-    api.SetImage(img)
-    img_iter = api.AnalyseLayout()
-    assert img_iter is not None
-    while img_iter.Next(RIL.SYMBOL):
-        boxes.append(img_iter.BoundingBox(RIL.SYMBOL))
+    
+    
+       
+    with PyTessBaseAPI(psm=13, path = r'C:\Program Files\Tesseract-OCR\tessdata') as api:
+        #api.Init(path = r'C:\Program Files\Tesseract-OCR\tessdata')
+        print(api.GetPageSegMode())
+        boxes = []
+        api.SetImage(img)
+        print("\nUPDATED!!!!\n")
+        img_iter = api.AnalyseLayout()
+        assert img_iter is not None
+        boxes.append(img_iter.BoundingBox(RIL.SYMBOL))     
+        while img_iter.Next(RIL.SYMBOL):
+            
+            boxes.append(img_iter.BoundingBox(RIL.SYMBOL))            
+           
+            
+    plt.show() 
+    
     return boxes
+
+def extract_segments(img, ril=RIL.SYMBOL):
+    cv_img = np.array(img.convert('RGB'))[:,:,::-1].copy()
+    boxes = []
+    with PyTessBaseAPI(psm=13, path = r'C:\Program Files\Tesseract-OCR\tessdata') as api:
+        
+        api.SetImage(img)
+        img_iter = api.AnalyseLayout()
+        boxes.append(img_iter.BoundingBox(ril))
+        while img_iter.Next(ril):            
+            boxes.append(img_iter.BoundingBox(ril))
+            
+        result = [Image.fromarray(cv_img[y:y+h, x:x+w]) for x,y,w,h in boxes]
+        
+    for box in result:
+        plt.imshow(box)
+        plt.show()
+   
+    return result
 
 
 def refine_boxes(img, boxes):
@@ -67,9 +100,10 @@ def filter_boxes(boxes):
 
 #pic = Image.open(r'1.png')
 #boxes = resegment(pic)
-pic = Image.open(r'2.png')
-boxes = resegment(pic)
-print(boxes)
+pic = Image.open(r'41.png')
+#boxes = resegment(pic)
+extract_segments(pic)
+#print(boxes)
 #refine_boxes(pic, boxes)
 
 #pic = erode(pic)
