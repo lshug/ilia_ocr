@@ -1,9 +1,8 @@
 from PIL import Image, ImageFilter
 import numpy as np
 from tesserocr import PyTessBaseAPI, RIL
+from matplotlib import pyplot as plt
 
-api = PyTessBaseAPI(psm=1, path = r'C:\Program Files\Tesseract-OCR\tessdata')
-api.Init(path = r'C:\Program Files\Tesseract-OCR\tessdata')
 
 
 def open_and_gray(filename):
@@ -30,21 +29,48 @@ def dilate(im, size=3):
         return im
     
     
+api = PyTessBaseAPI(psm=1, path = r'C:\Program Files\Tesseract-OCR\tessdata')
+api.Init(path = r'C:\Program Files\Tesseract-OCR\tessdata')
+
 
 def resegment(img): #img needs to be a PIL image
+    plt.imshow(img)
+    plt.show()    
     boxes = []
     api.SetImage(img)
     img_iter = api.AnalyseLayout()
-    print(img_iter is None)
+    assert img_iter is not None
     while img_iter.Next(RIL.SYMBOL):
         boxes.append(img_iter.BoundingBox(RIL.SYMBOL))
     return boxes
 
 
-
-pic = Image.open(r'2.png')
+def refine_boxes(img, boxes):
+    good_boxes, bad_boxes = filter_boxes(boxes)
+    print(len(good_boxes))
+    print(len(bad_boxes))
     
-print(resegment(pic))
+
+def filter_boxes(boxes):
+    good_boxes = []
+    to_be_refined = []
+    for box in boxes:
+        x, y, w, h = box
+        ratio = w / h
+        if ratio > 2: 
+            to_be_refined.append(box)
+        else:
+            good_boxes.append(box)
+    return good_boxes, to_be_refined
+
+
+
+#pic = Image.open(r'1.png')
+#boxes = resegment(pic)
+pic = Image.open(r'2.png')
+boxes = resegment(pic)
+print(boxes)
+#refine_boxes(pic, boxes)
 
 #pic = erode(pic)
 
