@@ -61,7 +61,7 @@ def resegment(img): #img needs to be a PIL image
 def extract_segments(img, ril=RIL.SYMBOL):
     cv_img = np.array(img.convert('RGB'))[:,:,::-1].copy()
     boxes = []
-    with PyTessBaseAPI(psm=13, path = r'C:\Program Files\Tesseract-OCR\tessdata') as api:
+    with PyTessBaseAPI(psm=7, path = r'C:\Program Files\Tesseract-OCR\tessdata') as api:
         
         api.SetImage(img)
         img_iter = api.AnalyseLayout()
