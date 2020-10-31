@@ -1,5 +1,10 @@
 from PIL import Image, ImageFilter
 import numpy as np
+from tesserocr import PyTessBaseAPI, RIL
+
+api = PyTessBaseAPI(psm=1, path = r'C:\Program Files\Tesseract-OCR\tessdata')
+api.Init(path = r'C:\Program Files\Tesseract-OCR\tessdata')
+
 
 def open_and_gray(filename):
         im = Image.open(filename)
@@ -24,8 +29,39 @@ def dilate(im, size=3):
         im = np.asarray(im)
         return im
     
-pic = open_and_gray(r'chars\96.png')
-pic = erode(pic, 3)
-#pic = dilate(pic)
-print(pic.shape)
-Image.fromarray(np.uint8(pic)).save('test.png')
+    
+
+def resegment(img): #img needs to be a PIL image
+    boxes = []
+    api.SetImage(img)
+    img_iter = api.AnalyseLayout()
+    print(img_iter is None)
+    while img_iter.Next(RIL.SYMBOL):
+        boxes.append(img_iter.BoundingBox(RIL.SYMBOL))
+    return boxes
+
+
+
+pic = Image.open(r'2.png')
+    
+print(resegment(pic))
+
+#pic = erode(pic)
+
+#Image.fromarray(np.uint8(pic)).save('test.png')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
