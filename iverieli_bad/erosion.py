@@ -36,52 +36,56 @@ api.Init(path = r'C:\Program Files\Tesseract-OCR\tessdata')
 
 def resegment(img): #img needs to be a PIL image
    
-    plt.imshow(img)
-    
     
        
-    with PyTessBaseAPI(psm=13, path = r'C:\Program Files\Tesseract-OCR\tessdata') as api:
+    with PyTessBaseAPI(psm=6, path = r'C:\Program Files\Tesseract-OCR\tessdata') as api:
         #api.Init(path = r'C:\Program Files\Tesseract-OCR\tessdata')
-        print(api.GetPageSegMode())
+       
         boxes = []
         api.SetImage(img)
-        print("\nUPDATED!!!!\n")
         img_iter = api.AnalyseLayout()
         assert img_iter is not None
         boxes.append(img_iter.BoundingBox(RIL.SYMBOL))     
         while img_iter.Next(RIL.SYMBOL):
             
             boxes.append(img_iter.BoundingBox(RIL.SYMBOL))            
-           
-            
-    plt.show() 
-    
+     
     return boxes
 
-def extract_segments(img, ril=RIL.SYMBOL):
-    cv_img = np.array(img.convert('RGB'))[:,:,::-1].copy()
-    boxes = []
-    with PyTessBaseAPI(psm=7, path = r'C:\Program Files\Tesseract-OCR\tessdata') as api:
-        
-        api.SetImage(img)
-        img_iter = api.AnalyseLayout()
-        boxes.append(img_iter.BoundingBox(ril))
-        while img_iter.Next(ril):            
-            boxes.append(img_iter.BoundingBox(ril))
-            
-        result = [Image.fromarray(cv_img[y:y+h, x:x+w]) for x,y,w,h in boxes]
-        
-    for box in result:
-        plt.imshow(box)
-        plt.show()
-   
-    return result
 
 
 def refine_boxes(img, boxes):
     good_boxes, bad_boxes = filter_boxes(boxes)
-    print(len(good_boxes))
-    print(len(bad_boxes))
+    
+    for bad_box in bad_boxes:
+        x, y, w, h = bad_box
+        im_temp = np.asarray(img)[y:y+h, x:x+w]
+        
+        # SEGMENTATION LOGIC START
+        im_temp = erode(im_temp)
+        # SEGMENTATION LOGIC END
+        
+        plt.imshow(im_temp)
+        plt.show()
+        
+        im = Image.fromarray(im_temp)
+        new_boxes = resegment(im.convert('RGB'))
+        for i in range(len(new_boxes)):
+            im_t = np.asarray(im_temp)[new_boxes[i][1]:new_boxes[i][1]+new_boxes[i][3], new_boxes[i][0]:new_boxes[i][0]+new_boxes[i][2]]
+            plt.imshow(im_t)
+            plt.show()
+            new_boxes[i] = (new_boxes[i][0] + x, new_boxes[i][1] + y, new_boxes[i][2] + w, new_boxes[i][3] + h)
+            
+            
+            
+        print(len(new_boxes))
+        np.append(good_boxes, new_boxes)
+        
+   
+    
+    return good_boxes
+    
+        
     
 
 def filter_boxes(boxes):
@@ -98,13 +102,11 @@ def filter_boxes(boxes):
 
 
 
-#pic = Image.open(r'1.png')
-#boxes = resegment(pic)
+
 pic = Image.open(r'41.png')
-#boxes = resegment(pic)
-extract_segments(pic)
-#print(boxes)
-#refine_boxes(pic, boxes)
+boxes = resegment(pic)
+print(boxes)
+refine_boxes(pic, boxes)
 
 #pic = erode(pic)
 
