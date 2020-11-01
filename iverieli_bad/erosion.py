@@ -39,7 +39,6 @@ def resegment(img): #img needs to be a PIL image
     
        
     with PyTessBaseAPI(psm=6, path = r'C:\Program Files\Tesseract-OCR\tessdata') as api:
-        #api.Init(path = r'C:\Program Files\Tesseract-OCR\tessdata')
        
         boxes = []
         api.SetImage(img)
@@ -71,9 +70,9 @@ def refine_boxes(img, boxes):
         im = Image.fromarray(im_temp)
         new_boxes = resegment(im.convert('RGB'))
         for i in range(len(new_boxes)):
-            im_t = np.asarray(im_temp)[new_boxes[i][1]:new_boxes[i][1]+new_boxes[i][3], new_boxes[i][0]:new_boxes[i][0]+new_boxes[i][2]]
-            plt.imshow(im_t)
-            plt.show()
+            #im_t = np.asarray(im_temp)[new_boxes[i][1]:new_boxes[i][1]+new_boxes[i][3], new_boxes[i][0]:new_boxes[i][0]+new_boxes[i][2]]
+            #plt.imshow(im_t)
+            #plt.show()
             new_boxes[i] = (new_boxes[i][0] + x, new_boxes[i][1] + y, new_boxes[i][2] + w, new_boxes[i][3] + h)
             
             
