@@ -9,3 +9,4 @@ labeler/chars
 labeler/labels
 server/__pychache__/
 server/test/
+server/test.py

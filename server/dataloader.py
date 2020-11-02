@@ -1,10 +1,9 @@
-import re
 import os
 from tqdm import tqdm
 from PIL import Image
-from tesserocr import PyTessBaseAPI, RIL
+from tesserocr import PyTessBaseAPI
 from pdf2image import convert_from_path
-from utils import segment, refine_boxes
+from utils import refine
 from bs4 import BeautifulSoup
 
 punctuations = list("'" + '.,"`_-/\\?!–’—”„%()')
@@ -35,7 +34,7 @@ def process_pdf(path):
     convert_from_path(pdf_file, fmt='png', output_folder=path)
     return process_images(path)
 
-def process_images(path):
+def process_images(path, refine_boxes=False):
     os.chdir(path)
     img_paths, page_jsons = [], []
     for img_path in tqdm([f for f in os.listdir() if '.png' in f], 'Processing images'):
@@ -46,6 +45,8 @@ def process_images(path):
             api.Recognize()
             hocr = api.GetHOCRText(0)
         page_json = process_hocr(hocr, img)
+        if refine_boxes:
+            page_json = refine(img, page_json)
         img_paths.append(img_path)
         page_jsons.append(page_json)
     return img_paths, page_jsons

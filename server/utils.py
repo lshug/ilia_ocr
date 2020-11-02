@@ -27,7 +27,7 @@ def erode(im, size=3):
 def refine_boxes(img, boxes):
     good_boxes, bad_boxes = filter_boxes(boxes)
     img_np = np.asarray(img)
-    for x, y, xw, yh in tqdm(bad_boxes, 'Resegmenting bad boxes'):
+    for x, y, xw, yh in bad_boxes:
         im_temp = img_np[y : yh, x : xw]
         im_temp = erode(im_temp)
         new_boxes = segment(im_temp)
@@ -35,11 +35,22 @@ def refine_boxes(img, boxes):
         good_boxes = good_boxes + new_boxes_rebased
     return good_boxes
 
+def refine(img, page_json):
+    for p in tqdm(page_json, 'Resegmenting bad boxes'):
+        for w in p['words']:
+            all_chars = w['chars']
+            empty_chars = [b for b in all_chars if b['label']=='']
+            punctuation_chars = empty_chars = [b for b in all_chars if b['label']!='']
+            boxes = [c['box'] for c in empty_chars]
+            boxes = refine_boxes(img, boxes)
+            refined_chars = [{'box':box,'label':''} for box in boxes]
+            w['chars'] = punctuation_chars + refined_chars
+    return page_json
 
 def filter_boxes(boxes):
     good_boxes = []
     bad_boxes = []
-    for box in tqdm(boxes, 'Identifying bad boxes'):
+    for box in boxes:
         x, y, xw, yh = box
         w,h = x - xw, y - yh
         ratio = w / h
