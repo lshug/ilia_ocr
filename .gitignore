@@ -7,3 +7,5 @@ iverieli/__pychache__/
 iverieli/iverieli_text_corpus.txt
 labeler/chars
 labeler/labels
+server/__pychache__/
+server/test/
