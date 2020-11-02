@@ -53,6 +53,8 @@ def filter_boxes(boxes):
     for box in boxes:
         x, y, xw, yh = box
         w,h = x - xw, y - yh
+        if h == 0:
+            continue
         ratio = w / h
         if ratio > 2:
             bad_boxes.append(box)
