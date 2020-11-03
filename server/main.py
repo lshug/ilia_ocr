@@ -15,8 +15,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Tuple, Optional
 import math
-import random
-import string
 import os
 import shutil
 from urllib.parse import urlparse
@@ -58,11 +56,11 @@ app.add_middleware(
 )
 
 
-ids = []
 documents = []
 delete_key_store = {}
 image_types = ["image/jpeg", "image/png"]
 files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", "./files")
+ids = os.listdir(files_path)
 app.mount("/files", StaticFiles(directory=files_path), name="files")
 
 
@@ -103,6 +101,11 @@ async def upload_document(
             status_code=400,
             detail="Uploaded files must be JPEG or PNG images, or a single PDF.",
         )
+    else:
+        os.mkdir(f"{files_path}/{new_id}")
+        for f in files:
+            contents = await f.read()
+            open(f"{files_path}/{new_id}/{f.filename}",'wb').write(contents)
     img_files = os.listdir(f"{files_path}/{new_id}/")
     pages = []
     for i, img_file in enumerate(img_files):
@@ -117,7 +120,9 @@ async def upload_document(
     delete_key_store[new_id] = delete_key
     background_tasks.add_task(process_images, f"{files_path}/{new_id}/", new_document, use_erosion, latin_mode)
     return {
-        "location": base_url + "/api/documents/" + new_id + "?page=0",
+        "id" : new_id,
+        "location" : base_url + "/api/documents/" + new_id
+        "first_page_location": base_url + "/api/documents/" + new_id + "?page=0",
         "delete_key": delete_key,
     }
 
