@@ -2,7 +2,6 @@ from PIL import Image, ImageFilter
 import numpy as np
 from scipy.ndimage import maximum_filter
 from tesserocr import PyTessBaseAPI, RIL
-from tqdm import tqdm
 
 
 def segment(img, psm=7, ril=RIL.SYMBOL):
@@ -41,7 +40,7 @@ def refine_boxes(img, boxes):
 
 def refine(img, page_json, page):
     len_paragraphs = len(page_json)
-    for i, p in tqdm(enumerate(page_json), "Resegmenting bad boxes"):
+    for i, p in enumerate(page_json):
         page.progress = (
             f"Resegmenting paragraph {i}/{len_paragraphs}",
             i / len_paragraphs,

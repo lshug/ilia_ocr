@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from tqdm import tqdm
 from PIL import Image
 from tesserocr import PyTessBaseAPI
 from pdf2image import convert_from_path, convert_from_bytes
@@ -14,10 +13,10 @@ punctuations = list("'" + '.,"`_-/\\?!–’—”„%()')
 def process_hocr(hocr, img, page, latin_mode):
     img_np = np.asarray(img)
     pars_out = []
-    soup = BeautifulSoup(hocr)
+    soup = BeautifulSoup(hocr, features="lxml")
     paragraphs = soup.body.find_all("p", attrs={"class": "ocr_par"})
     len_paragraphs = len(paragraphs)
-    for i, p in tqdm(enumerate(paragraphs), "Processing paragraphs"):
+    for i, p in enumerate(paragraphs):
         page.progress = (
             f"Processing paragraph {i}/{len_paragraphs}",
             i / len_paragraphs,
@@ -25,11 +24,11 @@ def process_hocr(hocr, img, page, latin_mode):
         p_box = tuple([int(x) for x in p.attrs["title"].split(";")[0].split(" ")[1:]])
         words_out = []
         words = p.find_all("span", attrs={"class": "ocrx_word"})
-        for w in tqdm(words, "Processing words"):
+        for w in words:
             w_box = tuple([int(x) for x in w.attrs["title"].split(";")[0].split(" ")[1:]])
             chars_out = []
             chars = w.find_all("span", attrs={"class": "ocrx_cinfo"})
-            for c in tqdm(chars, "Processsing characters"):
+            for c in chars:
                 c_box = tuple([int(x) for x in c.attrs["title"].split(";")[0].split(" ")[1:]])
                 x, y, xw, yh = c_box
                 c_label = c.text
@@ -45,7 +44,7 @@ def process_hocr(hocr, img, page, latin_mode):
 def page_json_to_text(page_json, page):
     len_paragraphs = len(page_json)
     text = ""
-    for i, p in tqdm(enumerate(page_json)):
+    for i, p in enumerate(page_json):
         page.progress = (
             f"Formatting paragraph text {i}/{len_paragraphs}",
             i / len_paragraphs,
@@ -64,12 +63,11 @@ def convert_pdf(f, output_folder):
 
 
 def process_images(path, doc, refine_boxes, latin_mode):
-    os.chdir(path)
     doc_pages = doc.pages
     page_jsons = []
-    for i, img_path in tqdm(enumerate([f for f in os.listdir() if ".pdf" not in f]), "Processing images"):
+    for i, img_path in enumerate([f for f in os.listdir(path) if ".pdf" not in f]):
         try:
-            img = Image.open(img_path)
+            img = Image.open(f'{path}/{img_path}')
             with PyTessBaseAPI(psm=3) as api:
                 api.SetVariable("hocr_char_boxes", "true")
                 api.SetImage(img)

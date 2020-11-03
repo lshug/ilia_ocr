@@ -59,7 +59,9 @@ app.add_middleware(
 documents = []
 delete_key_store = {}
 image_types = ["image/jpeg", "image/png"]
-files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", "./files")
+files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", "./files/")
+if not os.path.isdir(files_path):
+    os.mkdir(files_path)
 ids = os.listdir(files_path)
 app.mount("/files", StaticFiles(directory=files_path), name="files")
 
@@ -77,7 +79,7 @@ class Document(BaseModel):
 
 
 @app.post("/api/documents", status_code=201, tags=["essential"])
-async def upload_document(
+def upload_document(
     request: Request,
     background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(...),
@@ -93,9 +95,9 @@ async def upload_document(
     if len(files) == 1 and files[0].content_type == "application/pdf":
         os.mkdir(f"{files_path}/{new_id}")
         try:
-            convert_pdf(await files[0].read(), f"{files_path}/{new_id}/")
+            convert_pdf(files[0].file.read(), f"{files_path}/{new_id}/")
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Could not convert PDF. (Invalid PDF?)")
+            raise HTTPException(status_code=500, detail=f"Could not convert PDF. (Invalid PDF?) "+str(e))
     elif not all([f.content_type in f.content_type for f in files]):
         raise HTTPException(
             status_code=400,
@@ -104,12 +106,12 @@ async def upload_document(
     else:
         os.mkdir(f"{files_path}/{new_id}")
         for f in files:
-            contents = await f.read()
+            contents = f.file.read()
             open(f"{files_path}/{new_id}/{f.filename}",'wb').write(contents)
     img_files = os.listdir(f"{files_path}/{new_id}/")
     pages = []
     for i, img_file in enumerate(img_files):
-        url = base_url + "/files/" + img_file
+        url = base_url + "/files/" + new_id + '/' + img_file
         page = i
         text = ""
         progress = ("Starting processing", 0.0)
@@ -118,10 +120,12 @@ async def upload_document(
     documents.append(new_document)
     delete_key = get_random_string(10)
     delete_key_store[new_id] = delete_key
+    print('this')
     background_tasks.add_task(process_images, f"{files_path}/{new_id}/", new_document, use_erosion, latin_mode)
+    print('that')
     return {
         "id" : new_id,
-        "location" : base_url + "/api/documents/" + new_id
+        "location" : base_url + "/api/documents/" + new_id,
         "first_page_location": base_url + "/api/documents/" + new_id + "?page=0",
         "delete_key": delete_key,
     }
@@ -130,6 +134,11 @@ async def upload_document(
 @app.get("/api/", tags=["non-essential"])
 async def read_root(request: Request):
     return {"documents": {"href": "/api/documents"}}
+
+@app.get("/", tags=["non-essential"])
+async def read_root(request: Request):
+    return {"api": {"href": "/api/"}}
+
 
 
 @app.delete("/api/documents/{document_id}", tags=["essential"])
@@ -149,17 +158,17 @@ async def delete_document(document_id: str, delete_key: str):
 
 
 @app.get("/api/documents/{document_id}", tags=["essential"])
-async def get_document(response: Response, document_id: str, page: int = Query(-1, ge=0)):
+async def get_document(response: Response, document_id: str, page: int = Query(None, ge=0)):
     doc = [d for d in documents if d.id == document_id]
     if len(doc) == 0:
         raise HTTPException(status_code=404, detail=f"Document with id {document_id} not found.")
     doc = doc[0]
-    if page >= len(doc.pages):
+    if page is not None and page >= len(doc.pages):
         raise HTTPException(
             status_code=400,
             detail=f"Cannot get page {page} of document {document_id} with {len(doc.pages)} pages.",
         )
-    if page == -1:
+    if page == None:
         if not all([p.progress[0] == "Ready" for p in doc.pages]):
             response.status_code = 202
         return doc.pages

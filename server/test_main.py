@@ -1,21 +1,32 @@
 from fastapi.testclient import TestClient
 from main import app, ids, documents, delete_key_store, Document, Page
+from server_utils import get_random_string
 
 client = TestClient(app)
 
 temp_doc_id, temp_doc_delete_key = None
 
 
-def create_temp_doc():
-    pass
-
-
-def create_partionally_complete_temp_doc():
-    pass
-
-
-def complete_temp_doc():
-    pass
+def create_temp_doc(complete=0, incomplete=10):
+    pages = []
+    for i in range(incomplete):
+        url = 'ignore'
+        page = i
+        text = ""
+        progress = ("Starting processing", 0.0)
+        pages.append(Page(url=url, page=page, text=text, progress=progress))
+    for j in range(i+1, i+complete):
+        url = 'ignore'
+        page = j
+        text = ""
+        progress = ("Ready", 1.0)
+        pages.append(Page(url=url, page=page, text=text, progress=progress))
+    new_id = get_random_string(10)
+    documents.append(new_document)
+    delete_key = get_random_string(10)
+    delete_key_store[new_id] = delete_key
+    temp_doc_id = new_id
+    temp_doc_delete_key = delete_key
 
 
 # POST /api/documents
@@ -118,6 +129,3 @@ def test_delete_non_existing_id():
 def delete_wrong_key():
     pass
 
-
-def delete_fail():
-    pass
