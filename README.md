@@ -16,7 +16,7 @@ Repository for the OCR team. Should contain (completed items in bold):
             * **Erosion and resegmentation on wide symbols**
             * **Insert Tesseract-detected punctuations**
         * **Document to image:json pairs pipeline**
-    * FastAPI microservice
+    * **FastAPI microservice**
     * Model serving
  * Script for wrapping up the Flask server in a docker container 
 	 * Script for deploying the container to the server
