@@ -35,8 +35,10 @@ def refine_boxes(img, boxes):
         good_boxes = good_boxes + new_boxes_rebased
     return good_boxes
 
-def refine(img, page_json):
-    for p in tqdm(page_json, 'Resegmenting bad boxes'):
+def refine(img, page_json, page):
+    len_paragraphs = len(page_json)
+    for i, p in tqdm(enumerate(page_json), 'Resegmenting bad boxes'):
+        page.progress = (f'Resegmenting paragraph {i}/{len_paragraphs}', i/len_paragraphs)
         for w in p['words']:
             all_chars = w['chars']
             empty_chars = [b for b in all_chars if b['label']=='']
@@ -45,6 +47,7 @@ def refine(img, page_json):
             boxes = refine_boxes(img, boxes)
             refined_chars = [{'box':box,'label':''} for box in boxes]
             w['chars'] = punctuation_chars + refined_chars
+    page.progress = (f'Done resegmenting paragraphs', 1.0)
     return page_json
 
 def filter_boxes(boxes):

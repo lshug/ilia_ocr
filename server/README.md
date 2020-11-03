@@ -10,7 +10,7 @@ Microservice definitions.
 
 Data loading and preprocessing logic.
 
-## serving.py
+## model_serving.py
 
 Model serving.
 
