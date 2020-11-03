@@ -30,6 +30,10 @@ Data loading and processing utils (erosion).
 
 Server utils.
 
+## tests_main.py
+
+Unit tests.
+
 ## launch.sh
 
 Script for launchng the microservice.

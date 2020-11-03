@@ -24,18 +24,11 @@ from data_processor import convert_pdf, process_images
 from server_utils import LimitUploadSize, get_random_string
 
 
-
-title = 'ilia_ocr API'
-description="API for OCRing Georgian-language documents"
+title = "ilia_ocr API"
+description = "API for OCRing Georgian-language documents"
 tags_metadata = [
-    {
-        "name": "essential",
-        "description": "Essentil OCR service endpoinds, unit-tested."
-    },
-    {
-        "name": "non-essential",
-        "description": "Non-essential endpoints, not unit-tested."
-    },
+    {"name": "essential", "description": "Essential OCR service endpoinds, unit-tested."},
+    {"name": "non-essential", "description": "Non-essential endpoints, not unit-tested."},
 ]
 
 if (disable_interactve_docs := os.getenv("DISABLE_INTERACTIVE_DOCS", None)) is None:
@@ -43,7 +36,6 @@ if (disable_interactve_docs := os.getenv("DISABLE_INTERACTIVE_DOCS", None)) is N
 else:
     app = FastAPI(title=title, description=description, openapi_tags=tags_metadata, docs_url=None, redoc_url=None)
 app.add_middleware(LimitUploadSize, max_upload_size=os.getenv("MAX_UPLOAD_SIZE", 1_000_000_000))  # ~1GB
-
 
 
 origins = [
@@ -86,7 +78,7 @@ class Document(BaseModel):
     pages: List[Page]
 
 
-@app.post("/api/documents", status_code=201, tags=['essential'])
+@app.post("/api/documents", status_code=201, tags=["essential"])
 async def upload_document(
     request: Request,
     background_tasks: BackgroundTasks,
@@ -130,13 +122,12 @@ async def upload_document(
     }
 
 
-@app.get("/api/", tags=['non-essential'])
+@app.get("/api/", tags=["non-essential"])
 async def read_root(request: Request):
     return {"documents": {"href": "/api/documents"}}
 
 
-
-@app.delete("/api/documents/{document_id}", tags=['essential'])
+@app.delete("/api/documents/{document_id}", tags=["essential"])
 async def delete_document(document_id: str, delete_key: str):
     doc = [d for d in documents if d.id == document_id]
     if len(d) == 0:
@@ -151,7 +142,8 @@ async def delete_document(document_id: str, delete_key: str):
     shutil.rmtree(f"{files_path}/{document_id}/")
     documents.remove(doc[0])
 
-@app.get("/api/documents/{document_id}", tags=['essential'])
+
+@app.get("/api/documents/{document_id}", tags=["essential"])
 async def get_document(response: Response, document_id: str, page: int = Query(-1, ge=0)):
     doc = [d for d in documents if d.id == document_id]
     if len(doc) == 0:
@@ -171,7 +163,7 @@ async def get_document(response: Response, document_id: str, page: int = Query(-
     return doc.pages[page]
 
 
-@app.get("/api/documents", tags=['non-essential'])
+@app.get("/api/documents", tags=["non-essential"])
 async def list_documents(page: int = Query(0, ge=0), per_page: int = Query(20, ge=1, le=2000)):
     base_str = "/api/documents?page={}&per_page=" + str(per_page)
     results = documents[per_page * page : per_page * (page + 1)]
@@ -196,4 +188,3 @@ async def list_documents(page: int = Query(0, ge=0), per_page: int = Query(20, g
         "links": links,
     }
     return {"_metadata": metadata, "records": results}
-
