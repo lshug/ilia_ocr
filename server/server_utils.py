@@ -5,6 +5,7 @@ from starlette.responses import Response
 from starlette.types import ASGIApp
 import string
 import random
+from threading import Thread
 
 class LimitUploadSize(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp, max_upload_size: int) -> None:
@@ -25,3 +26,7 @@ def get_random_string(length):
     letters = string.ascii_lowercase
     result_str = "".join(random.choice(letters) for i in range(length))
     return result_str
+
+def run_in_thread(target, *args, **kwargs):
+    thread = Thread(target=target, args=args, kwargs=kwargs, daemon=True)
+    thread.start()

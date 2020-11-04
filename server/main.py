@@ -1,6 +1,5 @@
 from fastapi import (
     FastAPI,
-    BackgroundTasks,
     Request,
     Response,
     Query,
@@ -19,7 +18,7 @@ import os
 import shutil
 from urllib.parse import urlparse
 from data_processor import convert_pdf, process_images
-from server_utils import LimitUploadSize, get_random_string
+from server_utils import LimitUploadSize, get_random_string, run_in_thread
 
 
 title = "ilia_ocr API"
@@ -33,7 +32,7 @@ if (disable_interactve_docs := os.getenv("DISABLE_INTERACTIVE_DOCS", None)) is N
     app = FastAPI(title=title, description=description, openapi_tags=tags_metadata)
 else:
     app = FastAPI(title=title, description=description, openapi_tags=tags_metadata, docs_url=None, redoc_url=None)
-app.add_middleware(LimitUploadSize, max_upload_size=os.getenv("MAX_UPLOAD_SIZE", 1_000_000_000))  # ~1GB
+
 
 
 origins = [
@@ -54,7 +53,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.add_middleware(LimitUploadSize, max_upload_size=os.getenv("MAX_UPLOAD_SIZE", 1_000_000_000))  # ~1GB
 
 documents = []
 delete_key_store = {}
@@ -81,7 +80,6 @@ class Document(BaseModel):
 @app.post("/api/documents", status_code=201, tags=["essential"])
 def upload_document(
     request: Request,
-    background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(...),
     use_erosion: bool = False,
     latin_mode: bool = False,
@@ -97,8 +95,8 @@ def upload_document(
         try:
             convert_pdf(files[0].file.read(), f"{files_path}/{new_id}/")
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Could not convert PDF. (Invalid PDF?) "+str(e))
-    elif not all([f.content_type in f.content_type for f in files]):
+            raise HTTPException(status_code=500, detail=f"Could not convert PDF. (Invalid PDF?)")
+    elif not all([f.content_type in image_types for f in files]):
         raise HTTPException(
             status_code=400,
             detail="Uploaded files must be JPEG or PNG images, or a single PDF.",
@@ -120,9 +118,7 @@ def upload_document(
     documents.append(new_document)
     delete_key = get_random_string(10)
     delete_key_store[new_id] = delete_key
-    print('this')
-    background_tasks.add_task(process_images, f"{files_path}/{new_id}/", new_document, use_erosion, latin_mode)
-    print('that')
+    run_in_thread(process_images, f"{files_path}/{new_id}/", new_document, use_erosion, latin_mode)
     return {
         "id" : new_id,
         "location" : base_url + "/api/documents/" + new_id,
@@ -144,7 +140,7 @@ async def read_root(request: Request):
 @app.delete("/api/documents/{document_id}", tags=["essential"])
 async def delete_document(document_id: str, delete_key: str):
     doc = [d for d in documents if d.id == document_id]
-    if len(d) == 0:
+    if len(doc) == 0:
         raise HTTPException(status_code=404, detail=f"Document with id {document_id} not found.")
     if delete_key_store[document_id] != delete_key:
         raise HTTPException(
