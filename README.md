@@ -19,5 +19,6 @@ Repository for the OCR team. Should contain (completed items in bold):
     * **FastAPI microservice**
     * **Model serving**
     * **Unit tests**
- * Script for wrapping up the Flask server in a docker container 
-	 * Script for deploying the container to the server
+ * Docker
+	 * Dockerbuild
+	 * Deployment script
