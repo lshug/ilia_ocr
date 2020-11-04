@@ -7,6 +7,7 @@ iverieli/iverieli_text_corpus.txt
 labeler/chars
 labeler/labels
 server/__pycache__/
+server/.pytest_cache
 server/test/
 server/test.py
 server/files/
