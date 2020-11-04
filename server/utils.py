@@ -1,6 +1,9 @@
 from PIL import Image, ImageFilter
 import numpy as np
 from scipy.ndimage import maximum_filter
+
+import locale
+locale.setlocale(locale.LC_ALL, 'C')
 from tesserocr import PyTessBaseAPI, RIL
 
 

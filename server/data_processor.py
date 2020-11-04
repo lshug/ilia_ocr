@@ -1,11 +1,15 @@
 import os
 import numpy as np
 from PIL import Image
-from tesserocr import PyTessBaseAPI
 from pdf2image import convert_from_path, convert_from_bytes
 from utils import refine
 from bs4 import BeautifulSoup
 from .model_serving import infer
+
+import locale
+locale.setlocale(locale.LC_ALL, 'C')
+from tesserocr import PyTessBaseAPI, RIL
+
 
 punctuations = list("'" + '.,"`_-/\\?!–’—”„%()')
 
