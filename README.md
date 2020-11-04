@@ -18,6 +18,6 @@ Repository for the OCR team. Should contain (completed items in bold):
         * **Document to image:json pairs pipeline**
     * **FastAPI microservice**
     * **Model serving**
-    * Unit tests
+    * **Unit tests**
  * Script for wrapping up the Flask server in a docker container 
 	 * Script for deploying the container to the server
