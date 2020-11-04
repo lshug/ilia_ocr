@@ -17,8 +17,8 @@ import math
 import os
 import shutil
 from urllib.parse import urlparse
-from data_processor import convert_pdf, process_images
-from server_utils import LimitUploadSize, get_random_string, run_in_thread
+from .data_processor import convert_pdf, process_images
+from .server_utils import LimitUploadSize, get_random_string, run_in_thread
 
 
 title = "ilia_ocr API"

@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
-from main import app, ids, documents, delete_key_store, Document, Page
-from server_utils import get_random_string
+from .main import app, ids, documents, delete_key_store, Document, Page
+from .server_utils import get_random_string
 import tempfile
 import os
 

@@ -5,7 +5,7 @@ from tesserocr import PyTessBaseAPI
 from pdf2image import convert_from_path, convert_from_bytes
 from utils import refine
 from bs4 import BeautifulSoup
-from model_serving import infer
+from .model_serving import infer
 
 punctuations = list("'" + '.,"`_-/\\?!–’—”„%()')
 
