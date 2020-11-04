@@ -1,6 +1,4 @@
 *.kate-swp
-*.pdf
-!pdf.pdf
 *.hdf5
 *.h5
 iverieli/dataset/
