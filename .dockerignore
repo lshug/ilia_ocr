@@ -1,0 +1,7 @@
+*.kate-swps
+*.md
+*.txt
+iverieli/
+labeler/
+resources/
+model_training/train.py
