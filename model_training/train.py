@@ -52,4 +52,4 @@ except:
 
 model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 model.fit(X_train, y_train, epochs=20, batch_size=32, validation_data=(X_test,y_test), callbacks=callbacks)
-model.save('trained.h5')
+model.save('model.h5')
