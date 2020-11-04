@@ -50,7 +50,7 @@ LABEL_CHARS = [
     "ჰ",
 ]
 LABEL_ENCODINGS = dict(enumerate(LABEL_CHARS))
-model = keras.models.load_model("trained.h5")
+model = keras.models.load_model("model.h5")
 
 
 def infer(img):

@@ -7,5 +7,5 @@ labeler/labels
 server/__pycache__/
 server/.pytest_cache
 server/test/
-server/test.py
+server/model.h5
 server/files/
