@@ -19,6 +19,4 @@ Repository for the OCR team. Should contain (completed items in bold):
     * **FastAPI microservice**
     * **Model serving**
     * **Unit tests**
- * Docker
-	 * Dockerbuild
-	 * Deployment script
+ * **Dockerbuild**

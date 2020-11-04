@@ -1,6 +1,7 @@
 *.kate-swps
 *.md
 *.txt
+server/launch.sh
 iverieli/
 labeler/
 resources/
