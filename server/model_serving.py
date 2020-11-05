@@ -51,12 +51,7 @@ LABEL_CHARS = [
     "ჰ",
 ]
 LABEL_ENCODINGS = dict(enumerate(LABEL_CHARS))
-try:
-    model = keras.models.load_model(f"{os.path.dirname(__file__)}/model.h5")
-except:
-    print(os.listdir(os.path.dirname(__file__)))
-    raise
-
+model = keras.models.load_model(f"{os.path.dirname(__file__)}/model.h5")
 
 def infer(img):
     img = cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (32, 32)).reshape((32, 32, 1))[None]
