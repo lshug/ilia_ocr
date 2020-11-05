@@ -51,6 +51,8 @@ LABEL_CHARS = [
     "ჰ",
 ]
 LABEL_ENCODINGS = dict(enumerate(LABEL_CHARS))
+if not os.path.isfile(f"{os.path.dirname(__file__)}/model.h5"):
+    keras.applications.ResNet152V2(include_top=True, weights=None, input_shape=(32,32,1), classes=len(LABEL_CHARS)).save(f"{os.path.dirname(__file__)}/model.h5")
 model = keras.models.load_model(f"{os.path.dirname(__file__)}/model.h5")
 
 def infer(img):
