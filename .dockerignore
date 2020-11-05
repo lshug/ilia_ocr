@@ -1,7 +1,9 @@
 *.kate-swps
 *.md
+*.MD
 *.txt
 server/launch.sh
+server/__pycache__
 iverieli/
 labeler/
 resources/
