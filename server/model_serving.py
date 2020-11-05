@@ -55,6 +55,7 @@ try:
     model = keras.models.load_model(f"{os.path.dirname(__file__)}/model.h5")
 except:
     print(os.listdir(os.path.dirname(__file__)))
+    raise
 
 
 def infer(img):
