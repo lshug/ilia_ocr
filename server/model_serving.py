@@ -51,6 +51,8 @@ LABEL_CHARS = [
     "ჰ",
 ]
 LABEL_ENCODINGS = dict(enumerate(LABEL_CHARS))
+print(os.listdir(os.path.dirname(__file__)))
+input()
 model = keras.models.load_model(f"{os.path.dirname(__file__)}/model.h5")
 
 
