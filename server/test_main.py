@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from .main import app, ids, documents, delete_key_store, Document, Page
+from .main import app, ids, documents, delete_key_store, Document, Page, files_path
 from .server_utils import get_random_string
 import tempfile
 import os
@@ -12,7 +12,6 @@ temp_doc_id, temp_doc_delete_key = None, None
 def create_temp_doc(complete=0, incomplete=10):
     global temp_doc_id
     global temp_doc_delete_key
-    files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", "./files/")
     pages = []
     for i in range(incomplete):
         url = 'ignore'
@@ -71,20 +70,17 @@ def test_content_length_over_max():
     assert response.status_code == 413
 
 def test_pdf_upload_fail():
-    files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", "./files/")
     response = client.post("/api/documents", files={"files": ("filename", open('test_resources/pdf.pdf', "rb"), "application/pdf")})
     assert response.status_code == 201
     assert os.path.isdir(f'{files_path}/{response.json()["id"]}')
 
 def test_images_upload_error():
-    files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", "./files/")
     files = [('files', ('f1',open('test_resources/image1.png', "rb"),'image/jpeg')),('files', ('f2',open('test_resources/image1.png', "rb"),'image/jpeg'))]
     response = client.post("/api/documents", files=files)
     assert response.status_code == 201
     assert os.path.isdir(f'{files_path}/{response.json()["id"]}')
 
 def test_upload_high_load_fail():
-    files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", "./files/")
     for i in range(1000):
         files = [('files', ('f1',open('test_resources/image1.png', "rb"),'image/jpeg')),('files', ('f2',open('test_resources/image1.png', "rb"),'image/jpeg'))]
         response = client.post("/api/documents", files=files)
@@ -138,7 +134,6 @@ def test_delete_wrong_key():
     assert response.status_code == 403
 
 def test_delete_fail():
-    files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", "./files/")
     create_temp_doc()
     response = client.delete(f"/api/documents/{temp_doc_id}?delete_key={temp_doc_delete_key}")
     assert response.status_code == 200

@@ -58,7 +58,7 @@ app.add_middleware(LimitUploadSize, max_upload_size=os.getenv("MAX_UPLOAD_SIZE",
 documents = []
 delete_key_store = {}
 image_types = ["image/jpeg", "image/png"]
-files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", "./files/")
+files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", f"{os.path.dirname(__file__)}/files/")
 if not os.path.isdir(files_path):
     os.mkdir(files_path)
 ids = os.listdir(files_path)

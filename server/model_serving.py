@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import cv2
 import tensorflow as tf
@@ -50,7 +51,7 @@ LABEL_CHARS = [
     "ჰ",
 ]
 LABEL_ENCODINGS = dict(enumerate(LABEL_CHARS))
-model = keras.models.load_model("model.h5")
+model = keras.models.load_model(f"{os.path.dirname(__file__)}/model.h5")
 
 
 def infer(img):
