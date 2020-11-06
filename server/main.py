@@ -33,8 +33,6 @@ if (disable_interactve_docs := os.getenv("DISABLE_INTERACTIVE_DOCS", None)) is N
 else:
     app = FastAPI(title=title, description=description, openapi_tags=tags_metadata, docs_url=None, redoc_url=None)
 
-
-
 origins = [
     "http://localhost",
     "http://localhost:8080",
@@ -78,12 +76,7 @@ class Document(BaseModel):
 
 
 @app.post("/api/documents", status_code=201, tags=["essential"])
-def upload_document(
-    request: Request,
-    files: List[UploadFile] = File(...),
-    use_erosion: bool = False,
-    latin_mode: bool = False,
-):
+def upload_document(request: Request, files: List[UploadFile] = File(...), use_erosion: bool = False, latin_mode: bool = False):
     o = urlparse(str(request.url))
     base_url = o.scheme + "://" + o.netloc
     while (new_id := get_random_string(10)) in ids:
@@ -97,16 +90,13 @@ def upload_document(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Could not convert PDF. (Invalid PDF?)")
     elif not all([f.content_type in image_types for f in files]):
-        raise HTTPException(
-            status_code=400,
-            detail="Uploaded files must be JPEG or PNG images, or a single PDF.",
-        )
+        raise HTTPException(status_code=400, detail="Uploaded files must be JPEG or PNG images, or a single PDF.")
     else:
         os.mkdir(f"{files_path}/{new_id}")
-        for f in files:
+        for i,f in enumerate(files):
             contents = f.file.read()
-            open(f"{files_path}/{new_id}/{f.filename}",'wb').write(contents)
-    img_files = os.listdir(f"{files_path}/{new_id}/")
+            open(f"{files_path}/{new_id}/{i}_{f.filename}",'wb').write(contents)
+    img_files = sorted(os.listdir(f"{files_path}/{new_id}/"))
     pages = []
     for i, img_file in enumerate(img_files):
         url = base_url + "/files/" + new_id + '/' + img_file
@@ -160,10 +150,7 @@ async def get_document(response: Response, document_id: str, page: int = Query(N
         raise HTTPException(status_code=404, detail=f"Document with id {document_id} not found.")
     doc = doc[0]
     if page is not None and page >= len(doc.pages):
-        raise HTTPException(
-            status_code=400,
-            detail=f"Cannot get page {page} of document {document_id} with {len(doc.pages)} pages.",
-        )
+        raise HTTPException(status_code=400, detail=f"Cannot get page {page} of document {document_id} with {len(doc.pages)} pages.")
     if page == None:
         if not all([p.progress[0] == "Ready" for p in doc.pages]):
             response.status_code = 202
