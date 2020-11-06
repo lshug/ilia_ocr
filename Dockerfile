@@ -1,4 +1,5 @@
 FROM lshug/uvicorn-gunicorn-fastapi-tesserocr-tensorflow:python3.8
 
-#Copy server files
+ENV MAX_WORKERS 1
+s
 COPY ./server /app/app
