@@ -56,10 +56,6 @@ def page_json_to_text(page_json, page):
     page.text = text
     page.progress = ("Ready", 1.0)
 
-
-def convert_pdf(f, output_folder):
-    convert_from_bytes(f, fmt="png", output_folder=output_folder, output_file='')
-
 def process_image(img, page, refine_boxes, latin_mode):
     try:
         with PyTessBaseAPI(psm=3) as api:

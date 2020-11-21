@@ -77,15 +77,8 @@ def upload_document(request: Request, files: List[UploadFile] = File(...), use_e
     o = urlparse(str(request.url))
     base_url = o.scheme + "://" + o.netloc
     new_id = new_document_id()
-    pdf_converted = False
-    if len(files) == 1 and files[0].content_type == "application/pdf":
-        os.mkdir(f"{files_path}/{new_id}")
-        try:
-            convert_pdf(files[0].file.read(), f"{files_path}/{new_id}/")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Could not convert PDF. (Invalid PDF?)")
-    elif not all([f.content_type in image_types for f in files]):
-        raise HTTPException(status_code=400, detail="Uploaded files must be JPEG or PNG images, or a single PDF.")
+    if not all([f.content_type in image_types for f in files]):
+        raise HTTPException(status_code=400, detail="Uploaded files must be JPEG or PNG images.")
     else:
         os.mkdir(f"{files_path}/{new_id}")
         for i,f in enumerate(files):
