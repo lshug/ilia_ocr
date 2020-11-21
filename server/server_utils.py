@@ -8,11 +8,10 @@ import redis
 import json
 import string
 import random
-from threading import Thread
+import subprocess
+import psutil
+import time
 from .settings import settings
-
-redis_session = redis.StrictRedis(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db, password=settings.redis_password)
-celery_app = Celery('data_processing', broker=settings.redis_url)
 
 class LimitUploadSize(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp, max_upload_size: int) -> None:
@@ -33,8 +32,13 @@ def get_random_string(length):
     result_str = "".join(random.choice(letters) for i in range(length))
     return result_str
 
-def run_in_thread(target, *args, **kwargs):
-    thread = Thread(target=target, args=args, kwargs=kwargs, daemon=True)
-    thread.start()
+def start_redis_celery():
+    if settings.redis_host == 'localhost' and not any(['redis-server' in x for x in list((p.name() for p in psutil.process_iter()))]):
+        subprocess.Popen('redis-server')
+    if not any(['celery' in x for x in list((p.name() for p in psutil.process_iter()))]):
+        print(any(['celery' in x for x in list((p.name() for p in psutil.process_iter()))]))
+        subprocess.Popen(['celery', '-A', 'server.data_processor', 'worker','--loglevel=INFO'])
+        print(any(['celery' in x for x in list((p.name() for p in psutil.process_iter()))]))
 
-    
+redis_session = redis.StrictRedis(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db, password=settings.redis_password)
+celery_app = Celery('data_processing', broker=settings.redis_url)

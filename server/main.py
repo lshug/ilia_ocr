@@ -20,7 +20,7 @@ from .server_utils import celery_app
 from .server_utils import (
     LimitUploadSize, 
     get_random_string, 
-    run_in_thread, 
+    start_redis_celery,
 )
 from .models import (
     Page, 
@@ -31,6 +31,8 @@ from .models import (
     retrieve_page,
 )
 from .settings import settings
+
+start_redis_celery()
 
 title = "ilia_ocr API"
 description = "API for OCRing Georgian-language documents"
