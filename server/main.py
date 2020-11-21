@@ -11,14 +11,25 @@ from fastapi import (
 )
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from typing import List, Dict, Tuple, Optional
 import math
 import os
 import shutil
 from urllib.parse import urlparse
 from .data_processor import convert_pdf, process_images
-from .server_utils import LimitUploadSize, get_random_string, run_in_thread
+from .server_utils import (
+    LimitUploadSize, 
+    get_random_string, 
+    run_in_thread, 
+)
+from .models import (
+    Page, 
+    Document,
+    new_document_id, 
+    all_documents,
+    retrieve_document,
+    retrieve_page,
+)
 
 
 title = "ilia_ocr API"
@@ -53,8 +64,6 @@ app.add_middleware(
 )
 app.add_middleware(LimitUploadSize, max_upload_size=os.getenv("MAX_UPLOAD_SIZE", 1_000_000_000))  # ~1GB
 
-documents = []
-delete_key_store = {}
 image_types = ["image/jpeg", "image/png"]
 files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", f"{os.path.dirname(__file__)}/files/")
 if not os.path.isdir(files_path):
@@ -63,25 +72,11 @@ ids = os.listdir(files_path)
 app.mount("/files", StaticFiles(directory=files_path), name="files")
 
 
-class Page(BaseModel):
-    url: str
-    page: int
-    text: str
-    progress: Tuple[str, float]
-
-
-class Document(BaseModel):
-    id: str
-    pages: List[Page]
-
-
 @app.post("/api/documents", status_code=201, tags=["essential"])
 def upload_document(request: Request, files: List[UploadFile] = File(...), use_erosion: bool = False, latin_mode: bool = False):
     o = urlparse(str(request.url))
     base_url = o.scheme + "://" + o.netloc
-    while (new_id := get_random_string(10)) in ids:
-        new_id = get_random_string(10)
-    ids.append(new_id)
+    new_id = new_document_id()
     pdf_converted = False
     if len(files) == 1 and files[0].content_type == "application/pdf":
         os.mkdir(f"{files_path}/{new_id}")
@@ -99,26 +94,23 @@ def upload_document(request: Request, files: List[UploadFile] = File(...), use_e
     img_files = sorted(os.listdir(f"{files_path}/{new_id}/"))
     pages = []
     for i, img_file in enumerate(img_files):
+        id = new_id + str(i)
         url = base_url + "/files/" + new_id + '/' + img_file
         page = i
         text = ""
         progress = ("Starting processing", 0.0)
-        pages.append(Page(url=url, page=page, text=text, progress=progress))
-    new_document = Document(id=new_id, pages=pages)
-    documents.append(new_document)
-    delete_key = get_random_string(10)
-    delete_key_store[new_id] = delete_key
+        pages.append(Page(id=id, url=url, page=page, text=text, progress=progress))
+    new_document = Document(id=new_id, pages=[p.id for p in pages])
     run_in_thread(process_images, f"{files_path}/{new_id}/", new_document, use_erosion, latin_mode)
     return {
         "id" : new_id,
         "location" : base_url + "/api/documents/" + new_id,
-        "first_page_location": base_url + "/api/documents/" + new_id + "?page=0",
-        "delete_key": delete_key,
+        "first_page_location": base_url + "/api/documents/" + new_id + "?page=0"
     }
 
 
 @app.get("/api/", tags=["non-essential"])
-async def read_root(request: Request):
+async def read_api(request: Request):
     return {"documents": {"href": "/api/documents"}}
 
 @app.get("/", tags=["non-essential"])
@@ -126,42 +118,27 @@ async def read_root(request: Request):
     return {"api": {"href": "/api/"}}
 
 
-
-@app.delete("/api/documents/{document_id}", tags=["essential"])
-async def delete_document(document_id: str, delete_key: str):
-    doc = [d for d in documents if d.id == document_id]
-    if len(doc) == 0:
-        raise HTTPException(status_code=404, detail=f"Document with id {document_id} not found.")
-    if delete_key_store[document_id] != delete_key:
-        raise HTTPException(
-            status_code=403,
-            detail=f"delete_key {delete_key} incorrent for document with id {document_id}.",
-        )
-    ids.remove(document_id)
-    delete_key_store.pop(document_id)
-    shutil.rmtree(f"{files_path}/{document_id}/")
-    documents.remove(doc[0])
-
-
 @app.get("/api/documents/{document_id}", tags=["essential"])
 async def get_document(response: Response, document_id: str, page: int = Query(None, ge=0)):
-    doc = [d for d in documents if d.id == document_id]
-    if len(doc) == 0:
+    try:
+        doc = retrieve_document(document_id)
+    except:
         raise HTTPException(status_code=404, detail=f"Document with id {document_id} not found.")
-    doc = doc[0]
     if page is not None and page >= len(doc.pages):
         raise HTTPException(status_code=400, detail=f"Cannot get page {page} of document {document_id} with {len(doc.pages)} pages.")
     if page == None:
-        if not all([p.progress[0] == "Ready" for p in doc.pages]):
+        pages = [retrieve_page(p) for p in doc.pages]
+        if not all([p.progress[0] == "Ready" for p in pages]):
             response.status_code = 202
-        return doc.pages
+        return pages
     if doc.pages[page].progress[0] != "Ready":
         response.status_code = 202
-    return doc.pages[page]
+    return retrieve_page(page)
 
 
 @app.get("/api/documents", tags=["non-essential"])
 async def list_documents(page: int = Query(0, ge=0), per_page: int = Query(20, ge=1, le=2000)):
+    documents = all_documents()
     base_str = "/api/documents?page={}&per_page=" + str(per_page)
     results = documents[per_page * page : per_page * (page + 1)]
     self_url = base_str.format(page)
@@ -169,7 +146,6 @@ async def list_documents(page: int = Query(0, ge=0), per_page: int = Query(20, g
     previous_url = "" if page == 0 else base_str.format(page - 1)
     next_url = "" if page == len(documents) // per_page else base_str.format(page + 1)
     last_url = base_str.format(len(documents) // per_page)
-
     links = {
         "self": self_url,
         "first": first_url,

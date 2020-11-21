@@ -5,6 +5,7 @@ from pdf2image import convert_from_path, convert_from_bytes
 from bs4 import BeautifulSoup
 from .model_serving import predict
 from .utils import refine
+from .models import retrieve_page
 
 import locale
 locale.setlocale(locale.LC_ALL, 'C')
@@ -76,10 +77,10 @@ def process_image(img, page, refine_boxes, latin_mode):
         return {}
 
 def process_images(path, doc, refine_boxes, latin_mode):
-    doc_pages = doc.pages
+    doc_pages = [retrieve_page(p) for p in doc.pages]
     page_jsons = []
     for i, img_path in enumerate([f for f in os.listdir(path) if ".pdf" not in f]):
         img = Image.open(f'{path}/{img_path}')
-        page_jsons.appennd(process_image(img, doc_pages[i], refine_boxes, latin_mode))
+        page_jsons.append(process_image(img, doc_pages[i], refine_boxes, latin_mode))
     return page_jsons
     
