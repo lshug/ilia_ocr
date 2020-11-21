@@ -16,7 +16,7 @@ import math
 import os
 import shutil
 from urllib.parse import urlparse
-from .data_processor import convert_pdf, process_images
+from .server_utils import celery_app
 from .server_utils import (
     LimitUploadSize, 
     get_random_string, 
@@ -30,7 +30,7 @@ from .models import (
     retrieve_document,
     retrieve_page,
 )
-
+from .settings import settings
 
 title = "ilia_ocr API"
 description = "API for OCRing Georgian-language documents"
@@ -94,7 +94,8 @@ def upload_document(request: Request, files: List[UploadFile] = File(...), use_e
         progress = ("Starting processing", 0.0)
         pages.append(Page(id=id, url=url, page=page, text=text, progress=progress))
     new_document = Document(id=new_id, pages=[p.id for p in pages])
-    run_in_thread(process_images, f"{files_path}/{new_id}/", new_document, use_erosion, latin_mode)
+    #run_in_thread(process_images, f"{files_path}/{new_id}/", new_document, use_erosion, latin_mode)
+    celery_app.send_task('process_images', args=[f"{files_path}/{new_id}/", new_document.pages, use_erosion, latin_mode])
     return {
         "id" : new_id,
         "location" : base_url + "/api/documents/" + new_id,

@@ -3,13 +3,16 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
+from celery import Celery
 import redis
 import json
 import string
 import random
 from threading import Thread
+from .settings import settings
 
-redis_session = redis.Redis(host='localhost', port=6379, db=0)
+redis_session = redis.StrictRedis(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db, password=settings.redis_password)
+celery_app = Celery('data_processing', broker=settings.redis_url)
 
 class LimitUploadSize(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp, max_upload_size: int) -> None:
@@ -25,7 +28,6 @@ class LimitUploadSize(BaseHTTPMiddleware):
                 return Response(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         return await call_next(request)
 
-
 def get_random_string(length):
     letters = string.ascii_lowercase
     result_str = "".join(random.choice(letters) for i in range(length))
@@ -34,3 +36,5 @@ def get_random_string(length):
 def run_in_thread(target, *args, **kwargs):
     thread = Thread(target=target, args=args, kwargs=kwargs, daemon=True)
     thread.start()
+
+    

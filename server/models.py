@@ -10,7 +10,7 @@ class Page(BaseModel): # on init, update list in redis on setattr, update redis
         redis_session.set('pages/' + self.id, self.json())
     def __setattr__(self, name, value):
         super(Page, self).__setattr__(name, value)
-        redis_session.set('pages/' + str(self.id), self.json())
+        redis_session.set('pages/' + self.id, self.json())
     id: str
     url: str
     page: int

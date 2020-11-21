@@ -3,14 +3,15 @@ import numpy as np
 from PIL import Image
 from pdf2image import convert_from_path, convert_from_bytes
 from bs4 import BeautifulSoup
+from .server_utils import celery_app
 from .model_serving import predict
 from .utils import refine
 from .models import retrieve_page
+from .settings import settings
 
 import locale
 locale.setlocale(locale.LC_ALL, 'C')
 from tesserocr import PyTessBaseAPI, RIL
-
 
 punctuations = list("'" + '.,"`_-/\\?!–’—”„%()')
 
@@ -72,8 +73,10 @@ def process_image(img, page, refine_boxes, latin_mode):
         page.progress = (f"Error processing page: {e}", -1)
         return {}
 
-def process_images(path, doc, refine_boxes, latin_mode):
-    doc_pages = [retrieve_page(p) for p in doc.pages]
+
+@celery_app.task(name='process_images')
+def process_images(path, pages, refine_boxes, latin_mode):
+    doc_pages = [retrieve_page(p) for p in pages]
     page_jsons = []
     for i, img_path in enumerate([f for f in os.listdir(path) if ".pdf" not in f]):
         img = Image.open(f'{path}/{img_path}')
