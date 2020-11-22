@@ -1,22 +1,18 @@
-
-
 # ilia_ocr
-Repository for the OCR team. Should contain (completed items in bold):
- * **Iverieli scraping and segmenting code**
- 	 * **Iverieli downloader**
- 	 * **Iverieli segmenter**
-	 * **Text extractor for PDFs with text layers**
- * **Semi-supervised pipeline for labeling Iverieli chars**
-	 * **Tkiner-based GUI labeler**
-	 * **Tkinter-based GUI corrector**
-	 * **Model training and keras model generation code**
- * Server
-    * **Dataloader code**
-        * **Symbol heuristics**
-            * **Erosion and resegmentation on wide symbols**
-            * **Insert Tesseract-detected punctuations**
-        * **Document to image:json pairs pipeline**
-    * **FastAPI microservice**
-    * **Model serving**
-    * **Unit tests**
- * **Dockerfile**
+Repository for the OCR team. The recommended method for running the server is to build and run the docker image. Alternatively, if all dependencies are installed, you can test the server with:
+
+```
+uvicorn server.main:app
+```
+
+## Environment variables
+  * *DISABLE_INTERACTIVE_DOCS*: set to any value to disable interactive docs
+  * *FRONTEND_DOMAIN_NAME*: front-end domain name on which to enable CORS
+  * *MAXIMUM_UPLOAD_SIZE*: overrides maximum upload size of 1000000000 bytes
+  * *REDIS_HOSTNAME*: redis hostname. Will use local instance if not set.
+  * *REDIS_PORT*: redis port. Default: 6379.
+  * *REDIS_DB*: Default: 0.
+  * *REDIS_PASSWORD*: redis password. Default: None.
+  * *DATABASE_URL*: PostgreSQL connection string. Will use a local sqlite if not provided.
+  * Env vars described [here](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker#environment-variables)
+  
