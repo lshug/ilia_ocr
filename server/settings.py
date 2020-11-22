@@ -1,10 +1,10 @@
 import os
 
 class settings:
-    disable_interactve_docs = os.getenv("DISABLE_INTERACTIVE_DOCS", None)
+    disable_interactve_docs = os.getenv("DISABLE_INTERACTIVE_DOCS", False)
     domain_name = os.getenv("FRONTEND_DOMAIN_NAME", None)
-    files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", f"{os.path.dirname(__file__)}/files/")
-
+    max_upload_size = os.getenv("MAX_UPLOAD_SIZE", 1_000_000_000)
+    
     redis_host = os.getenv("REDIS_HOSTNAME", 'localhost')
     redis_port = os.getenv("REDIS_PORT", '6379')
     redis_db = os.getenv("REDIS_DB", '0')

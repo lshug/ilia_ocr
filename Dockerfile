@@ -19,9 +19,6 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py38_4.8.3-Linux
     echo "conda activate base" >> ~/.bashrc
 
 
-# PDF conversion stuff
-RUN conda install -c conda-forge poppler=20.11
-RUN conda install -c conda-forge pdf2image=1.13.1
 
 # tesserocr, bs4 for parsing hocr
 RUN conda install -c conda-forge tesserocr=2.5.1
@@ -31,15 +28,14 @@ RUN conda install -c conda-forge beautifulsoup4=4.9.3
 RUN conda install -c conda-forge scipy=1.5.3
 RUN conda install -c conda-forge opencv=4.5.0
 RUN conda install -c anaconda tensorflow-gpu=2.2.0
-
     
 # server stuff
 RUN conda install -c anaconda redis=5.0.3
 RUN python3 -m pip install --no-cache-dir uvicorn==0.12.2 gunicorn==20.0.4 fastapi==0.61 pydantic==1.7.2 uvloop==0.14.0 websockets==8.1 httptools==0.1.1 python-multipart==0.0.5 aiofiles==0.6.0 sqlalchemy==1.3 databases[sqlite,postgresql]==0.4.1 psutil==5.7.3 alembic==1.4.3 redis==3.5.3 celery[redis]==5.0.2
-COPY ./start.sh /start.sh
+COPY ./resources/start.sh /start.sh
 RUN chmod +x /start.sh
-COPY ./gunicorn_conf.py /gunicorn_conf.py
-COPY ./start-reload.sh /start-reload.sh
+COPY ./resources/gunicorn_conf.py /gunicorn_conf.py
+COPY ./resources/start-reload.sh /start-reload.sh
 RUN chmod +x /start-reload.sh
 RUN mkdir /app/
 WORKDIR /app/

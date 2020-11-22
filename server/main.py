@@ -13,7 +13,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import math
-import os
 from urllib.parse import urlparse
 from .server_utils import celery_app
 from .server_utils import (
@@ -42,7 +41,7 @@ tags_metadata = [
     {"name": "non-essential", "description": "Non-essential endpoints, not unit-tested."},
 ]
 
-if (disable_interactve_docs := os.getenv("DISABLE_INTERACTIVE_DOCS", None)) is None:
+if settings.disable_interactve_docs is False:
     app = FastAPI(title=title, description=description, openapi_tags=tags_metadata)
 else:
     app = FastAPI(title=title, description=description, openapi_tags=tags_metadata, docs_url=None, redoc_url=None)
@@ -52,7 +51,7 @@ origins = [
     "http://localhost:8080",
 ]
 
-if (domain_name := os.getenv("FRONTEND_DOMAIN_NAME", None)) is not None:
+if (domain_name := settings.domain_name) is not None:
     origins.append(f"http://{domain_name}")
     origins.append(f"http://{domain_name}:8080")
     origins.append(f"https://{domain_name}")
@@ -65,14 +64,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(LimitUploadSize, max_upload_size=os.getenv("MAX_UPLOAD_SIZE", 1_000_000_000))  # ~1GB
-
-files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", f"{os.path.dirname(__file__)}/files/")
-if not os.path.isdir(files_path):
-    os.mkdir(files_path)
-ids = os.listdir(files_path)
-app.mount("/files", StaticFiles(directory=files_path), name="files")
-
+app.add_middleware(LimitUploadSize, max_upload_size=settings.max_upload_size)
 
 async def process_files(files):
     if not all([f.content_type in ["image/jpeg", "image/png"] for f in files]):
