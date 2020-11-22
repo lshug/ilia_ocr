@@ -11,16 +11,15 @@ from fastapi import (
 )
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict, Tuple, Optional
+from typing import List
 import math
 import os
-import shutil
 from urllib.parse import urlparse
 from .server_utils import celery_app
 from .server_utils import (
-    LimitUploadSize, 
-    get_random_string, 
+    LimitUploadSize,
     start_redis_celery,
+    BytesImageWrapper,
 )
 from .models import (
     Page, 
@@ -29,6 +28,8 @@ from .models import (
     all_documents,
     retrieve_document,
     retrieve_page,
+    retrieve_raw_file,
+    insert_raw_file,
 )
 from .settings import settings
 
@@ -66,7 +67,6 @@ app.add_middleware(
 )
 app.add_middleware(LimitUploadSize, max_upload_size=os.getenv("MAX_UPLOAD_SIZE", 1_000_000_000))  # ~1GB
 
-image_types = ["image/jpeg", "image/png"]
 files_path = os.getenv("OCR_STATIC_FILES_DIRECTORY", f"{os.path.dirname(__file__)}/files/")
 if not os.path.isdir(files_path):
     os.mkdir(files_path)
@@ -74,30 +74,29 @@ ids = os.listdir(files_path)
 app.mount("/files", StaticFiles(directory=files_path), name="files")
 
 
+async def process_files(files):
+    if not all([f.content_type in ["image/jpeg", "image/png"] for f in files]):
+        raise HTTPException(status_code=400, detail="Uploaded files must be JPEG or PNG images.")
+    ids = [await insert_raw_file(f.filename, f.content_type, await f.read()) for f in files]
+    return ids
+    
+async def process_file_ids(file_ids, new_id, use_erosion, latin_mode):
+    progress = ("Starting processing", 0.0)
+    pages = [Page(id=new_id+str(i), page=i, text="", progress=progress) for i in range(len(file_ids))]
+    new_document = Document(id=new_id, pages=[p.id for p in pages])
+    celery_app.send_task('process_images', args=[file_ids, new_document.pages, use_erosion, latin_mode])
+
 @app.post("/api/documents", status_code=201, tags=["essential"])
-def upload_document(request: Request, files: List[UploadFile] = File(...), use_erosion: bool = False, latin_mode: bool = False):
+async def upload_document(request: Request, file_ids: List[int] = [], files: List[UploadFile] = File(None), use_erosion: bool = False, latin_mode: bool = False):
+    if len(files) == 0 and (file_ids is None or len(file_ids) == 0):
+        raise HTTPException(status_code=400, detail="No files or file ids provided.")
     o = urlparse(str(request.url))
     base_url = o.scheme + "://" + o.netloc
     new_id = new_document_id()
-    if not all([f.content_type in image_types for f in files]):
-        raise HTTPException(status_code=400, detail="Uploaded files must be JPEG or PNG images.")
-    else:
-        os.mkdir(f"{files_path}/{new_id}")
-        for i,f in enumerate(files):
-            contents = f.file.read()
-            open(f"{files_path}/{new_id}/{i}_{f.filename}",'wb').write(contents)
-    img_files = sorted(os.listdir(f"{files_path}/{new_id}/"))
-    pages = []
-    for i, img_file in enumerate(img_files):
-        id = new_id + str(i)
-        url = base_url + "/files/" + new_id + '/' + img_file
-        page = i
-        text = ""
-        progress = ("Starting processing", 0.0)
-        pages.append(Page(id=id, url=url, page=page, text=text, progress=progress))
-    new_document = Document(id=new_id, pages=[p.id for p in pages])
-    #run_in_thread(process_images, f"{files_path}/{new_id}/", new_document, use_erosion, latin_mode)
-    celery_app.send_task('process_images', args=[f"{files_path}/{new_id}/", new_document.pages, use_erosion, latin_mode])
+    if len(files) != 0:
+        ids = await process_files(files)
+        file_ids += ids
+    await process_file_ids(file_ids, new_id, use_erosion, latin_mode)
     return {
         "id" : new_id,
         "location" : base_url + "/api/documents/" + new_id,

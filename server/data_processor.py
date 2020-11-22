@@ -1,12 +1,12 @@
-import os
+import io
+import asyncio
 import numpy as np
 from PIL import Image
-from pdf2image import convert_from_path, convert_from_bytes
 from bs4 import BeautifulSoup
 from .server_utils import celery_app
 from .model_serving import predict
 from .utils import refine
-from .models import retrieve_page
+from .models import retrieve_page, retrieve_raw_file
 from .settings import settings
 
 import locale
@@ -59,11 +59,13 @@ def page_json_to_text(page_json, page):
 
 def process_image(img, page, refine_boxes, latin_mode):
     try:
+        page.progress = ('Analysing layout', 0.0)
         with PyTessBaseAPI(psm=3) as api:
             api.SetVariable("hocr_char_boxes", "true")
             api.SetImage(img)
             api.Recognize()
             hocr = api.GetHOCRText(0)
+        page.progress = ('Analysing layout', 1.0)
         page_json = process_hocr(hocr, img, page, latin_mode)
         if refine_boxes:
             page_json = refine(img, page_json, page)
@@ -75,11 +77,12 @@ def process_image(img, page, refine_boxes, latin_mode):
 
 
 @celery_app.task(name='process_images')
-def process_images(path, pages, refine_boxes, latin_mode):
-    doc_pages = [retrieve_page(p) for p in pages]
+def process_images(file_ids, pages, refine_boxes, latin_mode):
+    pages = [retrieve_page(p) for p in pages]
     page_jsons = []
-    for i, img_path in enumerate([f for f in os.listdir(path) if ".pdf" not in f]):
-        img = Image.open(f'{path}/{img_path}')
-        page_jsons.append(process_image(img, doc_pages[i], refine_boxes, latin_mode))
+    for page, file_id in zip(pages, file_ids):
+        img_bytes = asyncio.run(retrieve_raw_file(file_id)).contents
+        img = Image.open(io.BytesIO(img_bytes))
+        page_jsons.append(process_image(img, page, refine_boxes, latin_mode))
     return page_jsons
     

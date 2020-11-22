@@ -5,12 +5,10 @@ from starlette.responses import Response
 from starlette.types import ASGIApp
 from celery import Celery
 import redis
-import json
 import string
 import random
 import subprocess
 import psutil
-import time
 from .settings import settings
 
 class LimitUploadSize(BaseHTTPMiddleware):
@@ -27,6 +25,13 @@ class LimitUploadSize(BaseHTTPMiddleware):
                 return Response(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         return await call_next(request)
 
+class BytesImageWrapper:
+    def __init__(self, data):
+        self.data = data
+        
+    def __repr__(self):
+        return '<BytesImageWrapper>'
+
 def get_random_string(length):
     letters = string.ascii_lowercase
     result_str = "".join(random.choice(letters) for i in range(length))
@@ -36,9 +41,8 @@ def start_redis_celery():
     if settings.redis_host == 'localhost' and not any(['redis-server' in x for x in list((p.name() for p in psutil.process_iter()))]):
         subprocess.Popen('redis-server')
     if not any(['celery' in x for x in list((p.name() for p in psutil.process_iter()))]):
-        print(any(['celery' in x for x in list((p.name() for p in psutil.process_iter()))]))
-        subprocess.Popen(['celery', '-A', 'server.data_processor', 'worker','--loglevel=INFO'])
-        print(any(['celery' in x for x in list((p.name() for p in psutil.process_iter()))]))
+        subprocess.Popen(['celery', '-A', __name__.split('.')[0]+'.data_processor', 'worker','--loglevel=INFO'])
+
 
 redis_session = redis.StrictRedis(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db, password=settings.redis_password)
 celery_app = Celery('data_processing', broker=settings.redis_url)

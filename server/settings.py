@@ -13,6 +13,5 @@ class settings:
         redis_url = f'redis://:{redis_password}@{redis_host}:{redis_port}/{redis_db}'
     else:
         redis_url = f'redis://{redis_host}:{redis_port}/{redis_db}'
-
-# postgresql connect string
-# max GPUs
+        
+    database_url = os.getenv("DATABASE_URL", f"sqlite:///./{__name__.split('.')[0]}/localdb.sqlite")

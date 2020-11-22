@@ -1,7 +1,8 @@
 import json
 from pydantic import BaseModel
-from typing import List, Dict, Tuple, Optional
+from typing import List, Tuple
 from .server_utils import redis_session, get_random_string
+from .database import database, raw_files
 
 class Page(BaseModel): # on init, update list in redis on setattr, update redis
     def __init__(self, *args, **kwargs):
@@ -12,7 +13,6 @@ class Page(BaseModel): # on init, update list in redis on setattr, update redis
         super(Page, self).__setattr__(name, value)
         redis_session.set('pages/' + self.id, self.json())
     id: str
-    url: str
     page: int
     text: str
     progress: Tuple[str, float]
@@ -23,7 +23,7 @@ class Document(BaseModel): # on init, update list in redis.
         super(Document, self).__init__(*args, **kwargs)
         redis_session.set('documents/' + self.id, self.json())
     id: str
-    pages: List[str] 
+    pages: List[str]
 
 def retrieve_document(id):
     return Document.parse_raw(redis_session.get('documents/' + id).decode('utf8'))
@@ -43,3 +43,12 @@ def new_document_id():
         new_id = get_random_string(10)
     redis_session.lpush('documents', new_id)
     return new_id
+
+async def retrieve_raw_file(id):
+    query = raw_files.select().where(raw_files.c.id==id)
+    return (await database.fetch_all(query))[0]
+    
+    
+async def insert_raw_file(filename, mime_type, contents):
+    query = raw_files.insert().values(filename=filename, mime_type=mime_type, contents=contents)
+    return await database.execute(query)
