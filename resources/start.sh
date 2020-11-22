@@ -3,10 +3,8 @@ set -e
 
 if [ -f /app/app/main.py ]; then
     DEFAULT_MODULE_NAME=app.main
-    CELERY_NAME = app.celery_tasks
 elif [ -f /app/main.py ]; then
     DEFAULT_MODULE_NAME=main
-    CELERY_NAME = celery_tasks
 fi
 MODULE_NAME=${MODULE_NAME:-$DEFAULT_MODULE_NAME}
 VARIABLE_NAME=${VARIABLE_NAME:-app}
