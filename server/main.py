@@ -18,7 +18,6 @@ from .server_utils import celery_app
 from .server_utils import (
     LimitUploadSize,
     start_redis_celery,
-    BytesImageWrapper,
 )
 from .models import (
     Page, 

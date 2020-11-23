@@ -25,13 +25,6 @@ class LimitUploadSize(BaseHTTPMiddleware):
                 return Response(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         return await call_next(request)
 
-class BytesImageWrapper:
-    def __init__(self, data):
-        self.data = data
-        
-    def __repr__(self):
-        return '<BytesImageWrapper>'
-
 def get_random_string(length):
     letters = string.ascii_lowercase
     result_str = "".join(random.choice(letters) for i in range(length))
