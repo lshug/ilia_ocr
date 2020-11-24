@@ -78,15 +78,12 @@ async def process_file_ids(file_ids, new_id, use_erosion):
     celery_app.send_task('process_images', args=[file_ids, new_document.pages, use_erosion])
 
 @app.post("/api/documents", status_code=201, tags=["essential"])
-async def upload_document(request: Request, file_ids: List[int] = [], files: List[UploadFile] = File(None), use_erosion: bool = False):
-    if len(files) == 0 and (file_ids is None or len(file_ids) == 0):
-        raise HTTPException(status_code=400, detail="No files or file ids provided.")
+async def process_document(request: Request, file_ids: List[int] = [], use_erosion: bool = False):
+    if len(file_ids) == 0:
+        raise HTTPException(status_code=400, detail="No file ids provided.")
     o = urlparse(str(request.url))
     base_url = o.scheme + "://" + o.netloc
     new_id = new_document_id()
-    if len(files) != 0:
-        ids = await process_files(files)
-        file_ids += ids
     await process_file_ids(file_ids, new_id, use_erosion)
     return {
         "id" : new_id,
@@ -147,3 +144,20 @@ async def list_documents(page: int = Query(0, ge=0), per_page: int = Query(20, g
         "links": links,
     }
     return {"_metadata": metadata, "records": results}
+
+@app.post("/api/documents/fileupload", status_code=201, tags=["non-essential"])
+async def upload_document(request: Request, file_ids: List[int] = [], files: List[UploadFile] = File(None), use_erosion: bool = False):
+    if len(files) == 0 and (file_ids is None or len(file_ids) == 0):
+        raise HTTPException(status_code=400, detail="No files or file ids provided.")
+    o = urlparse(str(request.url))
+    base_url = o.scheme + "://" + o.netloc
+    new_id = new_document_id()
+    if len(files) != 0:
+        ids = await process_files(files)
+        file_ids += ids
+    await process_file_ids(file_ids, new_id, use_erosion)
+    return {
+        "id" : new_id,
+        "location" : base_url + "/api/documents/" + new_id,
+        "first_page_location": base_url + "/api/documents/" + new_id + "?page=0"
+    }
