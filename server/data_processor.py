@@ -22,33 +22,33 @@ LABEL_CHARS = list('0123456789?აბგდევზთიკლმნოპჟ�
 LABEL_ENCODINGS = dict(enumerate(LABEL_CHARS))
 
 
-@worker_process_init.connect()
-def worker_init(**_):
-    global model
-    physical_devices = tf.config.list_physical_devices('GPU')
-    for device in physical_devices:
-        try:
-            tf.config.experimental.set_memory_growth(device, True)
-        except:
-            pass
-    if os.path.isfile(f"{os.path.dirname(__file__)}/model.h5"):
-        model = keras.models.load_model(f"{os.path.dirname(__file__)}/model.h5")
-    else:
-        model = keras.applications.ResNet152V2(include_top=True, weights=None, input_shape=(32,32,1), classes=len(LABEL_CHARS))
-        model.predict(np.random.random_sample((1,32,32,1))) # ensure weight initialization
-        
+#@worker_process_init.connect()
+#def worker_init(**_):
+#    global model
+#    physical_devices = tf.config.list_physical_devices('GPU')
+#    for device in physical_devices:
+#        try:
+#            tf.config.experimental.set_memory_growth(device, True)
+#        except:
+#            pass
+#    if os.path.isfile(f"{os.path.dirname(__file__)}/model.h5"):
+#        model = keras.models.load_model(f"{os.path.dirname(__file__)}/model.h5")
+#    else:
+#        model = keras.applications.ResNet152V2(include_top=True, weights=None, input_shape=(32,32,1), classes=len(LABEL_CHARS))
+#        model.predict(np.random.random_sample((1,32,32,1))) # ensure weight initialization
+#        
+#
+## get this into the worker init func
+#
+#    
+#def predict(img):
+#    img = cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (32, 32)).reshape((32, 32, 1))[None]
+#    prediction = model.predict(img)
+#    label = LABEL_ENCODINGS[np.argmax(prediction[0])]
+#    return label
 
-# get this into the worker init func
 
-    
-def predict(img):
-    img = cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (32, 32)).reshape((32, 32, 1))[None]
-    prediction = model.predict(img)
-    label = LABEL_ENCODINGS[np.argmax(prediction[0])]
-    return label
-
-
-def process_hocr(hocr, img, page, latin_mode):
+def process_hocr(hocr, img, page, tess_mode=True):
     img_np = np.asarray(img)
     pars_out = []
     soup = BeautifulSoup(hocr, features="lxml")
@@ -67,7 +67,7 @@ def process_hocr(hocr, img, page, latin_mode):
                 c_box = tuple([int(x) for x in c.attrs["title"].split(";")[0].split(" ")[1:]])
                 x, y, xw, yh = c_box
                 c_label = c.text
-                if not latin_mode:
+                if not tess_mode:
                     c_label = c_label if c_label in punctuations else predict(img_np[y:yh, x:xw])  # Inference is made here
                 chars_out.append({"box": c_box, "label": c_label})
             words_out.append({"box": p_box, "chars": chars_out})
@@ -89,16 +89,16 @@ def page_json_to_text(page_json, page):
     page.text = text
     page.progress = ("Ready", 1.0)
 
-def process_image(img, page, refine_boxes, latin_mode):
+def process_image(img, page, refine_boxes):
     try:
         page.progress = ('Analysing layout', 0.0)
-        with PyTessBaseAPI(psm=3) as api:
+        with PyTessBaseAPI(lang='ge', psm=3) as api:
             api.SetVariable("hocr_char_boxes", "true")
             api.SetImage(img)
             api.Recognize()
             hocr = api.GetHOCRText(0)
         page.progress = ('Analysing layout', 1.0)
-        page_json = process_hocr(hocr, img, page, latin_mode)
+        page_json = process_hocr(hocr, img, page)
         if refine_boxes:
             page_json = refine(img, page_json, page)
         page_json_to_text(page_json, page)
@@ -109,12 +109,16 @@ def process_image(img, page, refine_boxes, latin_mode):
 
 
 @celery_app.task(name='process_images')
-def process_images(file_ids, pages, refine_boxes, latin_mode):
+def process_images(file_ids, pages, refine_boxes):
     pages = [retrieve_page(p) for p in pages]
     page_jsons = []
     for page, file_id in zip(pages, file_ids):
-        img_bytes = asyncio.run(retrieve_raw_file(file_id)).contents
+        try:
+            img_bytes = asyncio.run(retrieve_raw_file(file_id)).contents
+        except:
+            page.progress = (f"File with id {file_id} not found", -1)
+            continue
         img = Image.open(io.BytesIO(img_bytes))
-        page_jsons.append(process_image(img, page, refine_boxes, latin_mode))
+        page_jsons.append(process_image(img, page, refine_boxes))
     return page_jsons
     

@@ -71,14 +71,14 @@ async def process_files(files):
     ids = [await insert_raw_file(f.filename, f.content_type, await f.read()) for f in files]
     return ids
     
-async def process_file_ids(file_ids, new_id, use_erosion, latin_mode):
+async def process_file_ids(file_ids, new_id, use_erosion):
     progress = ("Starting processing", 0.0)
     pages = [Page(id=new_id+str(i), page=i, text="", progress=progress) for i in range(len(file_ids))]
     new_document = Document(id=new_id, pages=[p.id for p in pages])
-    celery_app.send_task('process_images', args=[file_ids, new_document.pages, use_erosion, latin_mode])
+    celery_app.send_task('process_images', args=[file_ids, new_document.pages, use_erosion])
 
 @app.post("/api/documents", status_code=201, tags=["essential"])
-async def upload_document(request: Request, file_ids: List[int] = [], files: List[UploadFile] = File(None), use_erosion: bool = False, latin_mode: bool = False):
+async def upload_document(request: Request, file_ids: List[int] = [], files: List[UploadFile] = File(None), use_erosion: bool = False):
     if len(files) == 0 and (file_ids is None or len(file_ids) == 0):
         raise HTTPException(status_code=400, detail="No files or file ids provided.")
     o = urlparse(str(request.url))
@@ -87,7 +87,7 @@ async def upload_document(request: Request, file_ids: List[int] = [], files: Lis
     if len(files) != 0:
         ids = await process_files(files)
         file_ids += ids
-    await process_file_ids(file_ids, new_id, use_erosion, latin_mode)
+    await process_file_ids(file_ids, new_id, use_erosion)
     return {
         "id" : new_id,
         "location" : base_url + "/api/documents/" + new_id,
