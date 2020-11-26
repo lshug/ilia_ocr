@@ -68,7 +68,7 @@ def process_hocr(hocr, img, page, tess_mode=True):
                 x, y, xw, yh = c_box
                 c_label = c.text
                 if not tess_mode:
-                    c_label = c_label if c_label in punctuations else predict(img_np[y:yh, x:xw])  # Inference is made here
+                    c_label = c_label if c_label in punctuations or c_label in LABEL_CHARS else '' # + predict(img_np[y:yh, x:xw])
                 chars_out.append({"box": c_box, "label": c_label})
             words_out.append({"box": p_box, "chars": chars_out})
         pars_out.append({"box": p_box, "words": words_out})
