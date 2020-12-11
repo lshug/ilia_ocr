@@ -26,8 +26,6 @@ RUN conda install -c conda-forge beautifulsoup4=4.9.3
 
 # stuff for cv and inference
 RUN conda install -c conda-forge scipy=1.5.3
-RUN conda install -c conda-forge opencv=4.5.0
-RUN conda install -c anaconda tensorflow-gpu=2.2.0
     
 # server stuff
 RUN conda install -c anaconda redis=5.0.3
@@ -43,11 +41,5 @@ WORKDIR /app/
 ENV PYTHONPATH=/app
 EXPOSE 80
 CMD ["/start.sh"]
-
-# Env vars (CUDA, gunicorn)
-
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
-
 
 COPY ./server /app/app
