@@ -17,13 +17,16 @@ class Page(BaseModel): # on init, update list in redis on setattr, update redis
     text: str
     progress: Tuple[str, float]
 
-
 class Document(BaseModel): # on init, update list in redis.
     def __init__(self, *args, **kwargs):
         super(Document, self).__init__(*args, **kwargs)
         redis_session.set('documents/' + self.id, self.json())
     id: str
     pages: List[str]
+    
+class DocumentPutRequest(BaseModel):
+    file_ids: List[int] = []
+    callback_url: str = ""
 
 def retrieve_document(id):
     return Document.parse_raw(redis_session.get('documents/' + id).decode('utf8'))

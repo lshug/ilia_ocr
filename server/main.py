@@ -22,6 +22,7 @@ from .server_utils import (
 from .models import (
     Page, 
     Document,
+    DocumentPutRequest,
     new_document_id, 
     all_documents,
     retrieve_document,
@@ -78,7 +79,8 @@ async def process_file_ids(file_ids, new_id, use_erosion, callback_url):
     celery_app.send_task('process_images', args=[file_ids, new_document.pages, use_erosion, callback_url])
 
 @app.post("/api/documents", status_code=201, tags=["essential"])
-async def process_document(request: Request, file_ids: List[int] = [], use_erosion: bool = False, callback_url: str = None):
+async def process_document(request: Request, request_body: DocumentPutRequest, use_erosion: bool = False):
+    file_ids, callback_url = request_body.file_ids, request_body.callback_url
     if len(file_ids) == 0:
         raise HTTPException(status_code=400, detail="No file ids provided.")
     o = urlparse(str(request.url))
@@ -146,7 +148,8 @@ async def list_documents(page: int = Query(0, ge=0), per_page: int = Query(20, g
     return {"_metadata": metadata, "records": results}
 
 @app.post("/api/documents/fileupload", status_code=201, tags=["non-essential"])
-async def upload_document(request: Request, file_ids: List[int] = [], files: List[UploadFile] = File(None), use_erosion: bool = False):
+async def upload_document(request: Request, request_body: DocumentPutRequest, files: List[UploadFile] = File(None), use_erosion: bool = False):
+    file_ids, callback_url = request_body.file_ids, request_body.callback_url
     if len(files) == 0 and (file_ids is None or len(file_ids) == 0):
         raise HTTPException(status_code=400, detail="No files or file ids provided.")
     o = urlparse(str(request.url))
@@ -155,7 +158,7 @@ async def upload_document(request: Request, file_ids: List[int] = [], files: Lis
     if len(files) != 0:
         ids = await process_files(files)
         file_ids += ids
-    await process_file_ids(file_ids, new_id, use_erosion)
+    await process_file_ids(file_ids, new_id, use_erosion, callback_url)
     return {
         "id" : new_id,
         "location" : base_url + "/api/documents/" + new_id,
