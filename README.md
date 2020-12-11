@@ -5,6 +5,8 @@ Repository for the OCR team. The recommended method for running the server is to
 uvicorn server.main:app
 ```
 
+Swagger UI can be accessed from /docs endpoint.
+
 ## Environment variables
   * *DISABLE_INTERACTIVE_DOCS*: set to any value to disable interactive docs
   * *FRONTEND_DOMAIN_NAME*: front-end domain name on which to enable CORS

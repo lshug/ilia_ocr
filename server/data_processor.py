@@ -5,9 +5,6 @@ import asyncio
 from PIL import Image
 from bs4 import BeautifulSoup
 import numpy as np
-import cv2
-import tensorflow as tf
-from tensorflow import keras
 from .server_utils import celery_app
 from celery.signals import worker_process_init
 from .utils import refine
@@ -24,6 +21,10 @@ LABEL_CHARS = list('0123456789?აბგდევზთიკლმნოპჟ�
 LABEL_ENCODINGS = dict(enumerate(LABEL_CHARS))
 
 '''
+import tensorflow as tf
+from tensorflow import keras
+import cv2
+
 @worker_process_init.connect()
 def worker_init(**_):
     global model
@@ -121,7 +122,7 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
             continue
         img = Image.open(io.BytesIO(img_bytes))
         page_jsons.append(process_image(img, page, refine_boxes))
-        if callback_url is not None:
+        if callback_url != '':
             try:
                 requests.get(callback_url, page=idx + 1, total=len(pages))
             except:
