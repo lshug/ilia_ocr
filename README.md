@@ -1,5 +1,12 @@
 # ilia_ocr
-Repository for the OCR team. The recommended method for running the server is to build and run the docker image. Alternatively, if all dependencies are installed, you can test the server with:
+Repository for the OCR team. The recommended method for running the server is to build and run the docker image. 
+
+```
+docker build -t ilia_ocr github.com/lshug/ilia_ocr
+docker run -p 127.0.0.1:8000:80 ilia_ocr
+```
+
+Alternatively, if all dependencies are installed, you can test the server with:
 
 ```
 uvicorn server.main:app
