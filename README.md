@@ -1,5 +1,5 @@
 # ilia_ocr
-Repository for the OCR team. The recommended method for running the server is to build and run the docker image. 
+The recommended method for running the server is to build and run the docker image. 
 
 ```
 docker build -t ilia_ocr github.com/lshug/ilia_ocr
