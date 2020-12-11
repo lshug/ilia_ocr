@@ -1,5 +1,6 @@
 import os
 import io
+import requests
 import asyncio
 from PIL import Image
 from bs4 import BeautifulSoup
@@ -12,6 +13,7 @@ from celery.signals import worker_process_init
 from .utils import refine
 from .models import retrieve_page, retrieve_raw_file
 from .settings import settings
+
 
 import locale
 locale.setlocale(locale.LC_ALL, 'C')
@@ -108,10 +110,10 @@ def process_image(img, page, refine_boxes):
 
 
 @celery_app.task(name='process_images')
-def process_images(file_ids, pages, refine_boxes):
+def process_images(file_ids, pages, refine_boxes, callback_url):
     pages = [retrieve_page(p) for p in pages]
     page_jsons = []
-    for page, file_id in zip(pages, file_ids):
+    for idx, (page, file_id) in enumerate(zip(pages, file_ids)):
         try:
             img_bytes = asyncio.run(retrieve_raw_file(file_id)).contents
         except:
@@ -119,5 +121,11 @@ def process_images(file_ids, pages, refine_boxes):
             continue
         img = Image.open(io.BytesIO(img_bytes))
         page_jsons.append(process_image(img, page, refine_boxes))
+        if callback_url is not None:
+            try:
+                requests.get(callback_url, page=idx + 1, total=len(pages))
+            except:
+                pass
+    
     return page_jsons
     
