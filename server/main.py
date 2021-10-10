@@ -148,8 +148,8 @@ async def list_documents(page: int = Query(0, ge=0), per_page: int = Query(20, g
     return {"_metadata": metadata, "records": results}
 
 @app.post("/api/documents/fileupload", status_code=201, tags=["non-essential"])
-async def upload_document(request: Request, request_body: DocumentPutRequest, files: List[UploadFile] = File(None), use_erosion: bool = False):
-    file_ids, callback_url = request_body.file_ids, request_body.callback_url
+async def upload_document(request: Request, callback_url : str = None, files: List[UploadFile] = File(None), use_erosion: bool = False):
+    file_ids, callback_url = [], callback_url
     if len(files) == 0 and (file_ids is None or len(file_ids) == 0):
         raise HTTPException(status_code=400, detail="No files or file ids provided.")
     o = urlparse(str(request.url))
