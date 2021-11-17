@@ -93,9 +93,9 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
                 img_bytes = record['contents']
             except:
                 img_bytes = record.contents
-        except Exception as e:
+        except Exception as ex:
             db_mode = 'sqlite' if 'sqlite' in settings.database_url else 'postgresql'
-            logger.error(f'{db_mode}: {e}')
+            logger.error(f'{db_mode}: {ex}')
             page.progress = (f"file with id {file_id} not found.", -1)
             continue
         img = Image.open(io.BytesIO(img_bytes))
