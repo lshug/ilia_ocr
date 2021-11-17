@@ -50,6 +50,7 @@ def new_document_id():
     return new_id
 
 async def retrieve_raw_file(id):
+    await connectdb()
     query = raw_files.select().where(raw_files.c.id==id)
     return (await database.fetch_all(query))[0]
         
