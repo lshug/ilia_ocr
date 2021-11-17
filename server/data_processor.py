@@ -86,7 +86,8 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
     for idx, (page, file_id) in enumerate(zip(pages, file_ids)):
         try:
             img_bytes = asyncio.run(retrieve_raw_file(file_id)).contents
-        except:
+        except Exception as e:
+            print(e)
             page.progress = (f"File with id {file_id} not found", -1)
             continue
         img = Image.open(io.BytesIO(img_bytes))
