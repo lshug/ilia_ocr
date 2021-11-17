@@ -3,8 +3,10 @@ from sqlalchemy import create_engine, Column, Integer, String, LargeBinary, Meta
 from .settings import settings
 
 SQLALCHEMY_DATABASE_URL = settings.database_url
+connect_args = {}
+
 if 'sqlite://' in SQLALCHEMY_DATABASE_URL:
-    connect_args={"check_same_thread": False}
+    connect_args["check_same_thread"] = False
 
 database = Database(SQLALCHEMY_DATABASE_URL)
 
