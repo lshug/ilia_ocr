@@ -29,6 +29,7 @@ from .models import (
     retrieve_page,
     retrieve_raw_file,
     insert_raw_file,
+    insert_test_image,
 )
 from .settings import settings
 
@@ -65,6 +66,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(LimitUploadSize, max_upload_size=settings.max_upload_size)
+
+@app.on_event("startup")
+async def startup_event():
+    await insert_test_image()
 
 async def process_files(files):
     if not all([f.content_type in ["image/jpeg", "image/png"] for f in files]):

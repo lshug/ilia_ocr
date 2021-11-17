@@ -2,7 +2,7 @@ import json
 from pydantic import BaseModel
 from typing import List, Tuple
 from .server_utils import redis_session, get_random_string
-from .database import database, raw_files
+from .database import database, raw_files, is_bootstrapping
 
 class Page(BaseModel): # on init, update list in redis on setattr, update redis
     def __init__(self, *args, **kwargs):
@@ -55,3 +55,7 @@ async def retrieve_raw_file(id):
 async def insert_raw_file(filename, mime_type, contents):
     query = raw_files.insert().values(filename=filename, mime_type=mime_type, contents=contents)
     return await database.execute(query)
+
+async def insert_test_image():
+    if is_bootstrapping:
+        await insert_raw_file('image1.png', 'image/png', open('app/app/test_resources/image1.png', 'rb').read())
