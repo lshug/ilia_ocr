@@ -22,6 +22,9 @@ Swagger UI can be accessed from /docs endpoint.
   * *REDIS_PORT*: redis port. Default: 6379.
   * *REDIS_DB*: Default: 0.
   * *REDIS_PASSWORD*: redis password. Default: None.
-  * *DATABASE_URL*: PostgreSQL connection string. Will use a local sqlite if not provided.
+  * *DATABASE_HOST*: PostgreSQL hostname
+  * *DATABASE_USERNAME*: PostgreSQL username
+  * *DATABASE_PASSWORD*: PostgreSQL password
+  * *DATABASE_NAME*: PostgreSQL database name
   * Env vars described [here](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker#environment-variables)
   
