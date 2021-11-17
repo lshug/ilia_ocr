@@ -15,3 +15,5 @@ class settings:
         redis_url = f'redis://{redis_host}:{redis_port}/{redis_db}'
         
     database_url = os.getenv("DATABASE_URL", f"sqlite:///./{__name__.split('.')[0]}/localdb.sqlite")
+    if 'sqlite://' not in database_url:
+        database_url = 'postgresql://' + database_url
