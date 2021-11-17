@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import List, Tuple
 from .server_utils import redis_session, get_random_string
 from .database import database, raw_files, is_bootstrapping
+import os
 
 class Page(BaseModel): # on init, update list in redis on setattr, update redis
     def __init__(self, *args, **kwargs):
