@@ -8,6 +8,7 @@ import redis
 import string
 import random
 import subprocess
+import os
 import psutil
 from .settings import settings
 
@@ -34,7 +35,8 @@ def start_redis_celery():
     if settings.redis_host == 'localhost' and not any(['redis-server' in x for x in list((p.name() for p in psutil.process_iter()))]):
         subprocess.Popen('redis-server')
     if not any(['celery' in x for x in list((p.name() for p in psutil.process_iter()))]):
-        subprocess.Popen(['celery', '-A', __name__.split('.')[0]+'.data_processor', 'worker','--loglevel=INFO'])
+        env = os.environ.copy()
+        subprocess.Popen(['celery', '-A', __name__.split('.')[0]+'.data_processor', 'worker','--loglevel=INFO'], env=env)
 
 
 redis_session = redis.StrictRedis(host=settings.redis_host, port=settings.redis_port, db=settings.redis_db, password=settings.redis_password)

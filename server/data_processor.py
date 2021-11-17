@@ -87,7 +87,8 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
         try:
             img_bytes = asyncio.run(retrieve_raw_file(file_id)).contents
         except Exception as e:
-            page.progress = (f"File with id {file_id} not found", -1)
+            db_mode = 'sqlite' if 'sqlite' in settings.database_url else 'postgresql'
+            page.progress = (f"{db_mode}: file with id {file_id} not found.", -1)
             continue
         img = Image.open(io.BytesIO(img_bytes))
         page_jsons.append(process_image(img, page, refine_boxes))
