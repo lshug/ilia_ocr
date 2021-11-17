@@ -16,8 +16,10 @@ engine = create_engine(
 
 metadata = MetaData()
 
+is_bootstrapping = not engine.dialect.has_table(engine, 'raw_files')
+
 raw_files = Table(
-    "raw_files",
+    "raw_files_0",
     metadata,
     Column("id", Integer, primary_key=True),
     Column("filename", String),
@@ -26,3 +28,5 @@ raw_files = Table(
 )
 
 metadata.create_all(engine)
+
+
