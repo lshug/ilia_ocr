@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import List, Tuple
 from .server_utils import redis_session, get_random_string
 from .database import database, raw_files, is_bootstrapping
+import asyncio
 import os
 
 class Page(BaseModel): # on init, update list in redis on setattr, update redis
@@ -51,8 +52,7 @@ def new_document_id():
 async def retrieve_raw_file(id):
     query = raw_files.select().where(raw_files.c.id==id)
     return (await database.fetch_all(query))[0]
-    
-    
+        
 async def insert_raw_file(filename, mime_type, contents):
     query = raw_files.insert().values(filename=filename, mime_type=mime_type, contents=contents)
     return await database.execute(query)
@@ -62,3 +62,10 @@ async def insert_test_image():
         server_directory = os.path.dirname(os.path.abspath(__file__))
         image_file = os.path.join(server_directory, 'test_resources', 'image1.png')
         await insert_raw_file('image1.png', 'image/png', open(image_file, 'rb').read())
+        
+async def connect_db():
+    try:
+        await database.connect()
+    except Exception as e:
+        await asyncio.sleep(3)
+        asyncio.ensure_future(connect_db())
