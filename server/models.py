@@ -58,4 +58,6 @@ async def insert_raw_file(filename, mime_type, contents):
 
 async def insert_test_image():
     if is_bootstrapping:
-        await insert_raw_file('image1.png', 'image/png', open('app/app/test_resources/image1.png', 'rb').read())
+        server_directory = os.path.dirname(os.path.abspath(__file__))
+        image_file = = os.path.join(server_directory, 'test_resources', 'image1.png')
+        await insert_raw_file('image1.png', 'image/png', open(os.path.join(os.path.abspath(__file__)+'/test_resources/image1.png', 'rb').read())
