@@ -3,11 +3,13 @@ from sqlalchemy import create_engine, Column, Integer, String, LargeBinary, Meta
 from .settings import settings
 
 SQLALCHEMY_DATABASE_URL = settings.database_url
+if 'sqlite://' in SQLALCHEMY_DATABASE_URL:
+    connect_args={"check_same_thread": False}
 
 database = Database(SQLALCHEMY_DATABASE_URL)
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, connect_args=connect_args
 )
 
 metadata = MetaData()
