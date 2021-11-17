@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 from .server_utils import celery_app
 from celery.signals import worker_process_init
+from celery.utils.log import get_task_logger
 from .utils import refine
 from .models import retrieve_page, retrieve_raw_file
 from .settings import settings
@@ -15,6 +16,8 @@ from .settings import settings
 import locale
 locale.setlocale(locale.LC_ALL, 'C')
 from tesserocr import PyTessBaseAPI, RIL
+
+logger = get_task_logger(__name__)
 
 punctuations = list("'" + '.,"`_-/\\?!–’—”„%()')
 LABEL_CHARS = list('0123456789?აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ')
@@ -88,7 +91,8 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
             img_bytes = asyncio.run(retrieve_raw_file(file_id)).contents
         except Exception as e:
             db_mode = 'sqlite' if 'sqlite' in settings.database_url else 'postgresql'
-            page.progress = (f"{db_mode}: file with id {file_id} not found.", -1)
+            logger.error(f'{db_mode}: {e}')
+            page.progress = (f"file with id {file_id} not found.", -1)
             continue
         img = Image.open(io.BytesIO(img_bytes))
         page_jsons.append(process_image(img, page, refine_boxes))
