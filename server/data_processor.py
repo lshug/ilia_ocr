@@ -88,7 +88,11 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
     page_jsons = []
     for idx, (page, file_id) in enumerate(zip(pages, file_ids)):
         try:
-            img_bytes = asyncio.run(retrieve_raw_file(file_id)).contents
+            record = asyncio.run(retrieve_raw_file(file_id))
+            try:
+                img_bytes = record['contents']
+            except:
+                img_bytes = record.contents
         except Exception as e:
             db_mode = 'sqlite' if 'sqlite' in settings.database_url else 'postgresql'
             logger.error(f'{db_mode}: {e}')
