@@ -24,7 +24,7 @@ metadata = MetaData()
 is_bootstrapping = not engine.dialect.has_table(engine, 'raw_files')
 
 raw_files = Table(
-    "raw_files_0",
+    "raw_files",
     metadata,
     Column("id", Integer, primary_key=True),
     Column("filename", String),
