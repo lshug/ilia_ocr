@@ -30,6 +30,7 @@ from .models import (
     retrieve_raw_file,
     insert_raw_file,
     insert_test_image,
+    connect_db,
 )
 from .settings import settings
 
@@ -69,6 +70,7 @@ app.add_middleware(LimitUploadSize, max_upload_size=settings.max_upload_size)
 
 @app.on_event("startup")
 async def startup_event():
+    await connect_db()
     await insert_test_image()
 
 async def process_files(files):
