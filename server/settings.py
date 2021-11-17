@@ -14,6 +14,19 @@ class settings:
     else:
         redis_url = f'redis://{redis_host}:{redis_port}/{redis_db}'
         
-    database_url = os.getenv("DATABASE_URL", f"sqlite:///./{__name__.split('.')[0]}/localdb.sqlite")
-    if 'sqlite://' not in database_url:
-        database_url = 'postgresql://' + database_url
+    database_host = os.getenv('DATABASE_HOST', None)
+    database_username = os.getenv('DATABASE_USERNAME', None)
+    database_password = os.getenv('DATABASE_PASSWORD', None)
+    database_name = os.getenv('DATABASE_NAME', None)
+    if database_host is None:
+        database_url = f"sqlite:///./{__name__.split('.')[0]}/localdb.sqlite"
+    else:
+        database_url = 'postgresql://'
+        if database_username is not None:
+            database_url += database_username
+            if database_password is not None:
+                database_url += f':{database_password}'
+            database_url += '@'
+        database_url += database_host
+        if database_name is not None:
+            database_url += f'/{database_name}'
