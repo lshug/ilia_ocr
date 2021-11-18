@@ -9,7 +9,7 @@ from .server_utils import celery_app
 from celery.signals import worker_process_init
 from celery.utils.log import get_task_logger
 from .utils import refine
-from .models import retrieve_page, async_retrieve_raw_file
+from .models import retrieve_page, async_retrieve_raw_file, postgresql_retrieve_raw_file_contents
 from .settings import settings
 
 
