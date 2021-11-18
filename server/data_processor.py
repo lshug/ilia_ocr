@@ -112,7 +112,7 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
         page_jsons.append(process_image(img, page, refine_boxes))
         if callback_url != '':
             try:
-                requests.get(callback_url, page=idx + 1, total=len(pages))
+                requests.get(callback_url, params={page:idx + 1, total:len(pages)})
             except Exception as ex:
                 logger.error(f'Error calling callback: {ex}')    
     return page_jsons
