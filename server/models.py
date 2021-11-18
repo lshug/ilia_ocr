@@ -66,9 +66,11 @@ def postgresql_retrieve_raw_file_contents(id):
     cursor = connection.cursor()
     select_query = f'SELECT contents FROM raw_files WHERE id={id}'
     cursor.execute(select_query)
-    contents = cursor.fetchone()
-    if len(contents) == 0:
+    fetched = cursor.fetchone()
+    if len(fetched) == 0:
         return None
+    else:
+    contents = fetched[0]
     cursor.close()
     connection.close()
     return contents
