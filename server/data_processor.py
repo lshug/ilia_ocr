@@ -107,7 +107,7 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
         try:
             img = Image.open(io.BytesIO(img_bytes))
         except Exception as ex:
-            page.progress = (f'Unable to open image with id {file_id}: {ex}')
+            page.progress = (f'Unable to open image with id {file_id}: {ex}', -1)
             continue
         page_jsons.append(process_image(img, page, refine_boxes))
         if callback_url != '':
