@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Tuple
 from .server_utils import redis_session, get_random_string
 from .database import database, raw_files, is_bootstrapping
-from settings import settings
+from .settings import settings
 import psycopg2
 import asyncio
 import os
