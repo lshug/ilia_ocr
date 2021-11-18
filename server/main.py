@@ -82,7 +82,7 @@ async def process_file_ids(file_ids, new_id, use_erosion, callback_url):
     progress = ("Starting processing", 0.0)
     pages = [Page(id=new_id+str(i), page=i, text="", progress=progress) for i in range(len(file_ids))]
     new_document = Document(id=new_id, pages=[p.id for p in pages])
-    celery_app.send_task('process_images', args=[file_ids, new_document.pages, use_erosion, callback_url])
+    celery_app.send_task('process_images', args=[new_id, file_ids, new_document.pages, use_erosion, callback_url])
 
 @app.post("/api/documents", status_code=201, tags=["essential"])
 async def process_document(request: Request, request_body: DocumentPutRequest, use_erosion: bool = False):

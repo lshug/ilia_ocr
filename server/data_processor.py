@@ -83,7 +83,7 @@ def process_image(img, page, refine_boxes):
 
 
 @celery_app.task(name='process_images')
-def process_images(file_ids, pages, refine_boxes, callback_url):
+def process_images(document_id, file_ids, pages, refine_boxes, callback_url):
     db_mode = 'sqlite' if 'sqlite' in settings.database_url else 'postgresql'
     pages = [retrieve_page(p) for p in pages]
     page_jsons = []
@@ -112,7 +112,7 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
         page_jsons.append(process_image(img, page, refine_boxes))
         if callback_url != '':
             try:
-                requests.get(callback_url, params={'page':idx + 1, 'total':len(pages)})
+                requests.get(callback_url, params={'document_id':document_id, 'page':idx + 1, 'total':len(pages), 'finished_document'idx+1==len(pages)})
             except Exception as ex:
                 logger.error(f'Error calling callback: {ex}')    
     return page_jsons
