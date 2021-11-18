@@ -97,6 +97,9 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
                     img_bytes = record.contents
             else:
                 img_bytes = postgresql_retrieve_raw_file_contents(file_id)
+                if img_bytes is None:
+                    page.progress = (f"file with id {file_id} not found.", -1)
+                    continue
         except Exception as ex:
             logger.error(f'{db_mode}: {ex}')
             page.progress = (f"file with id {file_id} not found.", -1)
@@ -111,6 +114,6 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
             try:
                 requests.get(callback_url, page=idx + 1, total=len(pages))
             except Exception as ex:
-                logger.error(f'Error calling callback: {e}')    
+                logger.error(f'Error calling callback: {ex}')    
     return page_jsons
     
