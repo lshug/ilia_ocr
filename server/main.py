@@ -27,7 +27,6 @@ from .models import (
     all_documents,
     retrieve_document,
     retrieve_page,
-    retrieve_raw_file,
     insert_raw_file,
     insert_test_image,
     connect_db,
