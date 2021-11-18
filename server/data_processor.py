@@ -101,7 +101,11 @@ def process_images(file_ids, pages, refine_boxes, callback_url):
             logger.error(f'{db_mode}: {ex}')
             page.progress = (f"file with id {file_id} not found.", -1)
             continue
-        img = Image.open(io.BytesIO(img_bytes))
+        try:
+            img = Image.open(io.BytesIO(img_bytes))
+        except Exception as ex:
+            page.progress = (f'Unable to open image with id {file_id}: {ex}')
+            continue
         page_jsons.append(process_image(img, page, refine_boxes))
         if callback_url != '':
             try:
