@@ -124,7 +124,7 @@ async def get_document(response: Response, document_id: str, page: int = Query(N
         return pages
     if doc.pages[page].progress[0] != "Ready":
         response.status_code = 202
-    return retrieve_page(page)
+    return retrieve_page(doc.pages[page])
 
 
 @app.get("/api/documents", tags=["non-essential"])
