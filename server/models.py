@@ -69,7 +69,6 @@ def postgresql_retrieve_raw_file_contents(id):
     fetched = cursor.fetchone()
     if len(fetched) == 0:
         return None
-    else:
     contents = fetched[0]
     cursor.close()
     connection.close()
