@@ -9,7 +9,7 @@ from .server_utils import celery_app
 from celery.signals import worker_process_init
 from celery.utils.log import get_task_logger
 from .utils import refine
-from .models import retrieve_page, retrieve_raw_file
+from .models import retrieve_page, async_retrieve_raw_file
 from .settings import settings
 
 
@@ -84,17 +84,20 @@ def process_image(img, page, refine_boxes):
 
 @celery_app.task(name='process_images')
 def process_images(file_ids, pages, refine_boxes, callback_url):
+    db_mode = 'sqlite' if 'sqlite' in settings.database_url else 'postgresql'
     pages = [retrieve_page(p) for p in pages]
     page_jsons = []
     for idx, (page, file_id) in enumerate(zip(pages, file_ids)):
         try:
-            record = asyncio.run(retrieve_raw_file(file_id))
-            try:
-                img_bytes = record['contents']
-            except:
-                img_bytes = record.contents
+            if db_mode == 'sqlite':
+                record = asyncio.run(async_retrieve_raw_file(file_id))
+                try:
+                    img_bytes = record['contents']
+                except:
+                    img_bytes = record.contents
+            else:
+                img_bytes = postgresql_retrieve_raw_file_contents(file_id)
         except Exception as ex:
-            db_mode = 'sqlite' if 'sqlite' in settings.database_url else 'postgresql'
             logger.error(f'{db_mode}: {ex}')
             page.progress = (f"file with id {file_id} not found.", -1)
             continue
