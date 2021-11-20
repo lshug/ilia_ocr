@@ -9,8 +9,12 @@ docker run -p 127.0.0.1:8000:80 ilia_ocr
 Alternatively, if all dependencies are installed, you can test the server with:
 
 ```
-uvicorn server.main:app
+python3 -m uvicorn server.main:app
 ```
+
+Dependencies can be installed using the provided conda environment (environment.env). However, the following packages should be available system-wide:
+
+```wget bzip2 libgl1-mesa-glx ca-certificates curl git```
 
 Swagger UI can be accessed from /docs endpoint.
 
