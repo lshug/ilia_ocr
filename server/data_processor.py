@@ -1,4 +1,5 @@
 import os
+import shutil
 import io
 import requests
 import asyncio
@@ -15,7 +16,7 @@ from .settings import settings
 
 import locale
 locale.setlocale(locale.LC_ALL, 'C')
-from tesserocr import PyTessBaseAPI, RIL
+from tesserocr import PyTessBaseAPI, RIL, get_languages
 
 logger = get_task_logger(__name__)
 
@@ -77,10 +78,21 @@ def process_image(img, page, refine_boxes):
             page_json = refine(img, page_json, page)
         page_json_to_text(page_json, page)
         return page_json
-    except:
-        page.progress = (f"Error processing page: {e}", -1)
+    except Exception as ex:
+        page.progress = (f"Error processing page: {ex}", -1)
         return {}
 
+def ensure_language_support():
+    tessdata_path, langs = get_languages()
+    if 'ge' not in langs:
+        try:
+            root_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+            traineddata_path = os.path.join(root_dir, 'resources', 'ge.traineddata')
+            logger.warning(traineddata_path)
+            logger.warning(tessdata_path)
+            shutil.copy(traineddata_path, tessdata_path)
+        except:
+            logger.warning('Could not ensure language support')
 
 @celery_app.task(name='process_images')
 def process_images(document_id, file_ids, pages, refine_boxes, callback_url):
@@ -117,3 +129,4 @@ def process_images(document_id, file_ids, pages, refine_boxes, callback_url):
                 logger.error(f'Error calling callback: {ex}')    
     return page_jsons
     
+ensure_language_support()
