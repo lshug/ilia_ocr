@@ -1,5 +1,6 @@
 name: ilia_ocr_env
 channels:
+  - anaconda
   - conda-forge
   - defaults
 dependencies:
@@ -7,8 +8,8 @@ dependencies:
   - _openmp_mutex=4.5=1_gnu
   - asgiref=3.4.1=pyhd8ed1ab_0
   - bzip2=1.0.8=h7f98852_4
-  - ca-certificates=2021.10.8=ha878542_0
-  - certifi=2021.10.8=py38h578d9bd_1
+  - ca-certificates=2020.10.14=0
+  - certifi=2020.6.20=py38_0
   - freetype=2.10.4=h0708190_1
   - giflib=5.2.1=h36c2ea0_2
   - h11=0.12.0=pyhd8ed1ab_0
@@ -45,6 +46,7 @@ dependencies:
   - python=3.8.12=h12debd9_0
   - python_abi=3.8=2_cp38
   - readline=8.1=h27cfd23_0
+  - redis=5.0.3=h7b6447c_0
   - scipy=1.5.3=py38hb2138dd_0
   - setuptools=58.0.4=py38h06a4308_0
   - sqlite=3.36.0=hc218d9a_0
