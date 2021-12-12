@@ -18,7 +18,10 @@ def extract_segments(img, ril=RIL.SYMBOL):
 def extract_chars(img, psm=1):
     api.SetImage(img)
     return [b[0] for b in api.GetComponentImages(RIL.SYMBOL, True)]
-        
+
+def extract_lines(img, psm=1):
+    api.SetImage(img)
+    return [b[0] for b in api.GetComponentImages(RIL.TEXTLINE, True)]    
     
 if __name__ == '__main__':
     import os
@@ -27,14 +30,17 @@ if __name__ == '__main__':
     dirs = os.listdir()
     for d in tqdm(dirs):
         os.chdir(d)
-        pages = [x for x in os.listdir() if x!='chars']
+        pages = [x for x in os.listdir() if x != 'chars' and x != 'lines']
         try:
             os.mkdir('chars')
+            os.mkdir('lines')
         except:
             pass
         for p in pages:
             img = Image.open(p)
             chars = extract_chars(img)
-            for i,im in enumerate(chars):
-                im.save(f'chars/{i}.png','PNG')
+            lines = extract_lines(img)
+            for col in [chars, lines]:
+                for idx, im in enumerate(col):
+                    im.save(f'chars/{idx}.png','PNG')            
         os.chdir('..')
