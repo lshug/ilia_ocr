@@ -3,6 +3,7 @@ import shutil
 import io
 import requests
 import asyncio
+import json
 from PIL import Image
 from bs4 import BeautifulSoup
 import numpy as np
@@ -76,6 +77,7 @@ def process_image(img, page, refine_boxes):
         page_json = process_hocr(hocr, img, page)
         if refine_boxes:
             page_json = refine(img, page_json, page)
+        page.page_json = json.dumps(page_json, ensure_ascii=False)
         page_json_to_text(page_json, page)
         return page_json
     except Exception as ex:

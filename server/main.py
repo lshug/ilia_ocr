@@ -38,8 +38,8 @@ start_redis_celery()
 title = "ilia_ocr API"
 description = "API for OCRing Georgian-language documents"
 tags_metadata = [
-    {"name": "essential", "description": "Essential OCR service endpoinds, unit-tested."},
-    {"name": "non-essential", "description": "Non-essential endpoints, not unit-tested."},
+    {"name": "essential", "description": "Essential OCR service endpoinds."},
+    {"name": "non-essential", "description": "Non-essential endpoints."},
 ]
 
 if settings.disable_interactve_docs is False:
@@ -80,7 +80,7 @@ async def process_files(files):
     
 async def process_file_ids(file_ids, new_id, use_erosion, callback_url):
     progress = ("Starting processing", 0.0)
-    pages = [Page(id=new_id+str(i), page=i, text="", progress=progress) for i in range(len(file_ids))]
+    pages = [Page(id=new_id+str(i), page=i, text="", page_json="", progress=progress) for i in range(len(file_ids))]
     new_document = Document(id=new_id, pages=[p.id for p in pages])
     celery_app.send_task('process_images', args=[new_id, file_ids, new_document.pages, use_erosion, callback_url])
 

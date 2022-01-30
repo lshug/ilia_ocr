@@ -19,6 +19,7 @@ class Page(BaseModel): # on init, update list in redis on setattr, update redis
     id: str
     page: int
     text: str
+    page_json: str
     progress: Tuple[str, float]
 
 class Document(BaseModel): # on init, update list in redis.
